@@ -14,3 +14,13 @@ CREATE TABLE Utilisateur (idUtilisateur char(5) PRIMARY KEY,
                           adresse varchar(100),
                           dateInscription DATE
 );
+
+CREATE TABLE Animal (idAnimal char(5) PRIMARY KEY,
+                          nom varchar(50),
+                          espece varchar(50),
+                          race varchar(50),
+                          age int(2),
+                          poids int(3),
+                          idProprietaire char(5) -- Plus tard, ajouter que cest une fk
+);
+
