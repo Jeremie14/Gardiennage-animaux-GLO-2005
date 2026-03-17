@@ -40,20 +40,20 @@ CREATE TABLE Reservation(
     idReservation char(5) PRIMARY KEY,
     dateDebut DATE,
     dateFin DATE,
-    statut char(5),  -- Pt plus un enum?
+    statut ENUM('TERMINE', 'EN_COURS'),
     prixTotal int(5),
-    idClient char(5), -- FK? -> Pas trouvé ailleurs
+    idClient char(5),
     idGardien char(5),
     idAnimal char(5),
-    FOREIGN KEY(idGardien) REFERENCES GardienAnimaux(idGardien),
-    FOREIGN KEY(idAnimal) REFERENCES Animal(idAnimal)
+    FOREIGN KEY (idGardien) REFERENCES GardienAnimaux(idGardien),
+    FOREIGN KEY (idAnimal) REFERENCES Animal(idAnimal)
 );
 
 CREATE TABLE Paiement(
     idPaiement char(5) PRIMARY KEY,
     montant int(5),
     datePaiement DATE,
-    methodePaiement varchar(100), -- Enum? Visa, Mastercard, espèce, etc
+    methodePaiement ENUM('Crédit', 'Débit', 'Espèce'),
     idReservation char(5),
     FOREIGN KEY(idReservation) REFERENCES Reservation(idReservation)
 );
