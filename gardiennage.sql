@@ -23,7 +23,8 @@ CREATE TABLE Animal (
     race varchar(50),
     age int(2),
     poids int(3),
-    idProprietaire char(5) -- FK(fixer plus tard) -> Pas trouvé ailleurs
+    idProprietaire char(5),
+    FOREIGN KEY(idProprietaire) REFERENCES Utilisateur(idUtilisateur)
 );
 
 CREATE TABLE GardienAnimaux (
@@ -32,7 +33,7 @@ CREATE TABLE GardienAnimaux (
     experience int(2),
     tarifHoraire int(3),
     description varchar(1000),
-    evaluationMoyenne varchar(3), -- A modifier --> Fonction calcul moyenne
+    evaluationMoyenne int(3), -- A modifier --> Fonction calcul moyenne
     FOREIGN KEY (idUtilisateur) REFERENCES Utilisateur(idUtilisateur)
 );
 
@@ -46,7 +47,8 @@ CREATE TABLE Reservation(
     idGardien char(5),
     idAnimal char(5),
     FOREIGN KEY (idGardien) REFERENCES GardienAnimaux(idGardien),
-    FOREIGN KEY (idAnimal) REFERENCES Animal(idAnimal)
+    FOREIGN KEY (idAnimal) REFERENCES Animal(idAnimal),
+    FOREIGN KEY(idClient) REFERENCES Utilisateur(idUtilisateur)
 );
 
 CREATE TABLE Paiement(
@@ -59,11 +61,12 @@ CREATE TABLE Paiement(
 );
 
 CREATE TABLE Avis(
-    idAvis char(5),
+    idAvis char(5) PRIMARY KEY,
     note int(3),
     commentaire varchar(1000),
     dateAvis DATE,
-    idClient char(5), -- FK a rajouter
+    idProprietaire char(5),
     idGardien char(5),
-    FOREIGN KEY(idGardien) REFERENCES GardienAnimaux(idGardien)
-)
+    FOREIGN KEY(idGardien) REFERENCES GardienAnimaux(idGardien),
+    FOREIGN KEY(idProprietaire) REFERENCES Utilisateur(idUtilisateur)
+);
