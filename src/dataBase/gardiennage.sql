@@ -356,8 +356,18 @@ SELECT * FROM GardienAnimaux;
 SELECT G.idGardien, U.prenom, U.nom FROM GardienAnimaux G, Utilisateur U WHERE G.idUtilisateur = U.idUtilisateur;
 
 -- Requête qui renvoie le nom des clients et le nombre d'animaux qu'il possède
+SELECT U.prenom, U.nom, COUNT(*) AS Nombre
+FROM Utilisateur U, Animal A
+WHERE U.idUtilisateur = A.idProprietaire
+GROUP BY A.idProprietaire;
 
 -- Requête qui renvoie les gardiens qui ont un taux horaire en bas de la moyenne (À MODIFIER)
 SELECT idGardien, tarifHoraire
 FROM GardienAnimaux
 WHERE tarifHoraire < (SELECT AVG(tarifHoraire) FROM GardienAnimaux);
+
+-- Requête qui renvoie les propriétaires et leur animaux
+SELECT U.idUtilisateur, U.prenom, U.nom, A.nom, A.idAnimal
+FROM Utilisateur U
+INNER JOIN Animal A
+ON U.idUtilisateur = A.idProprietaire;
