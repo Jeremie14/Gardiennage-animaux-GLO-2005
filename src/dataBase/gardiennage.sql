@@ -302,12 +302,62 @@ INSERT INTO Animal (nom, espece, race, age, poids, idProprietaire) VALUES
 ('Scales','lézard','Gecko',2,1,39),
 ('Viper','lézard','Iguane',5,6,40);
 
--- INSERT INTO GardienAnimaux(idUtilisateur)
--- SELECT U.utilisateur
--- FROM Utilisateur U
--- WHERE U.utilisateur >= 61;
+INSERT INTO GardienAnimaux (idUtilisateur, experience, tarifHoraire, description, evaluationMoyenne)VALUES
+(61,2,15,'Je garde les chats et petits animaux',75),
+(62,5,18,'Je garde les chiens et chats',82),
+(63,1,12,'Je garde les hamsters et lapins',70),
+(64,8,22,'Je garde tous les animaux',88),
+(65,3,16,'Je garde les oiseaux et lapins',74),
+(66,10,25,'Je garde les chiens',90),
+(67,6,20,'Je garde les chats et furets',85),
+(68,4,17,'Je garde les petits animaux',72),
+(69,7,23,'Je garde les chiens et chats',87),
+(70,12,30,'Je garde tous les animaux',92),
 
--- Requête
+(71,0,10,'Je garde les hamsters',65),
+(72,15,35,'Je garde les chiens et animaux exotiques',95),
+(73,9,24,'Je garde les chats',80),
+(74,11,28,'Je garde les chiens et lapins',89),
+(75,2,14,'Je garde les oiseaux',73),
+(76,14,32,'Je garde tous les animaux',94),
+(77,6,19,'Je garde les furets et hamsters',78),
+(78,3,15,'Je garde les chats et lapins',76),
+(79,8,21,'Je garde les chiens',83),
+(80,13,29,'Je garde les chiens et chats',91),
+
+(81,5,18,'Je garde les petits animaux',77),
+(82,16,34,'Je garde tous les animaux',96),
+(83,7,22,'Je garde les reptiles',84),
+(84,4,17,'Je garde les chats',75),
+(85,10,26,'Je garde les chiens et oiseaux',88),
+(86,12,31,'Je garde tous les animaux',93),
+(87,1,11,'Je garde les hamsters et lapins',69),
+(88,9,23,'Je garde les chats et chiens',86),
+(89,6,20,'Je garde les furets',79),
+(90,18,36,'Je garde tous les animaux',97),
+
+(91,2,13,'Je garde les oiseaux et reptiles',72),
+(92,20,38,'Je garde tous les animaux',98),
+(93,11,27,'Je garde les chiens et chats',89),
+(94,3,15,'Je garde les petits animaux',74),
+(95,14,33,'Je garde tous les animaux',95),
+(96,8,21,'Je garde les chats',82),
+(97,17,35,'Je garde les chiens et animaux exotiques',96),
+(98,5,18,'Je garde les lapins et hamsters',77),
+(99,19,37,'Je garde tous les animaux',97),
+(100,7,22,'Je garde les chiens et chats',85);
+
+-- Requête :
+SELECT * FROM Animal;
 SELECT * FROM Utilisateur;
+SELECT * FROM GardienAnimaux;
+
+-- Génère l'id des gardiens ainsi que leur prénom et nom
+SELECT G.idGardien, U.prenom, U.nom FROM GardienAnimaux G, Utilisateur U WHERE G.idUtilisateur = U.idUtilisateur;
+
 -- Requête qui renvoie le nom des clients et le nombre d'animaux qu'il possède
--- SELECT U.prenom, COUNT(*) FROM Utilisateur U, Animal A WHERE
+
+-- Requête qui renvoie les gardiens qui ont un taux horaire en bas de la moyenne (À MODIFIER)
+SELECT idGardien, tarifHoraire
+FROM GardienAnimaux
+WHERE tarifHoraire < (SELECT AVG(tarifHoraire) FROM GardienAnimaux);
