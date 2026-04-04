@@ -10,6 +10,15 @@
           </v-card-item>
 
           <v-card-text>
+            <v-alert
+              v-if="formError"
+              type="error"
+              variant="tonal"
+              class="mb-4"
+            >
+              {{ formError }}
+            </v-alert>
+
             <v-form v-model="isValid" @submit.prevent="handleLogin">
               <v-text-field
                 v-model="email"
@@ -17,19 +26,23 @@
                 type="email"
                 variant="outlined"
                 prepend-inner-icon="mdi-email-outline"
-                :rules="[v => !!v || 'Email is required']"
+                :rules="emailRules"
+                :disabled="isSubmitting"
+                @update:model-value="clearFormError"
                 required
               ></v-text-field>
 
               <v-text-field
                 v-model="password"
-                label="Password"
+                label="Mot de passe"
                 variant="outlined"
                 prepend-inner-icon="mdi-lock-outline"
                 :type="showPassword ? 'text' : 'password'"
                 :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                 @click:append-inner="showPassword = !showPassword"
-                :rules="[v => !!v || 'Password is required']"
+                :rules="passwordRules"
+                :disabled="isSubmitting"
+                @update:model-value="clearFormError"
                 required
               ></v-text-field>
 
@@ -39,7 +52,8 @@
                 block
                 size="large"
                 class="mt-4 rounded-lg font-weight-bold"
-                :disabled="!isValid"
+                :disabled="!isValid || isSubmitting"
+                :loading="isSubmitting"
               >
                 Log In
               </v-btn>
@@ -58,13 +72,67 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const email = ref('')
 const password = ref('')
 const showPassword = ref(false)
-const isValid = ref(false)
+const isValid = ref(null)
+const isSubmitting = ref(false)
+const formError = ref('')
 
-const handleLogin = () => {
-  console.log('Logging in with:', email.value, password.value)
+const emailRules = [
+  (v) => !!v || 'Le courriel est obligatoire',
+  (v) => /.+@.+\..+/.test(v || '') || 'Le courriel doit etre valide',
+]
+
+const passwordRules = [
+  (v) => !!v || 'Le mot de passe est obligatoire',
+  (v) => (v || '').length >= 8 || 'Le mot de passe doit contenir au moins 8 caracteres',
+]
+
+const clearFormError = () => {
+  formError.value = ''
+}
+
+const handleLogin = async () => {
+  formError.value = ''
+
+  if (!email.value || !password.value) {
+    formError.value = 'Veuillez remplir tous les champs.'
+    return
+  }
+
+  if (!/.+@.+\..+/.test(email.value)) {
+    formError.value = 'Le courriel doit etre valide.'
+    return
+  }
+
+  if (password.value.length < 8) {
+    formError.value = 'Le mot de passe doit contenir au moins 8 caracteres.'
+    return
+  }
+
+  isSubmitting.value = true
+
+  try {
+    await new Promise((resolve) => setTimeout(resolve, 800))
+
+    const validEmail = 'client@pawstay.com'
+    const validPassword = 'motdepasse123'
+
+    if (email.value !== validEmail || password.value !== validPassword) {
+      formError.value = 'Adresse courriel ou mot de passe incorrect.'
+      return
+    }
+
+    router.push('/owner')
+  } catch (error) {
+    formError.value = 'Une erreur est survenue. Veuillez reessayer.'
+  } finally {
+    isSubmitting.value = false
+  }
 }
 </script>
