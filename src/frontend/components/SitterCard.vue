@@ -14,7 +14,7 @@ defineEmits(['book'])
           ★ {{ sitter.rating }}
         </v-chip>
       </div>
-      <v-card-subtitle>${{ sitter.rate }} / night</v-card-subtitle>
+      <v-card-subtitle>${{ sitter.rate }} / nuit</v-card-subtitle>
     </v-card-item>
 
     <v-card-text class="text-body-2 text-grey-darken-1">
@@ -31,7 +31,7 @@ defineEmits(['book'])
         class="rounded-lg"
         :to="`/sitter/${sitter.id}`"
       >
-        View Profile
+        Voir le profil
       </v-btn>
     </v-card-actions>
   </v-card>

@@ -17,28 +17,28 @@
 
           <v-divider class="my-4"></v-divider>
 
-          <h2 class="text-h6 mb-2">About Me</h2>
+          <h2 class="text-h6 mb-2">A propos de moi</h2>
           <p class="text-body-1 text-grey-darken-2">
-            Professional pet sitter with over 5 years of experience. I specialize in senior dogs and nervous cats. I am certified in pet CPR and currently studying veterinary science.
+            Gardienne professionnelle avec plus de 5 ans d'experience. Je me specialise dans les chiens ages et les chats anxieux. Je suis certifiee en premiers soins pour animaux et j'etudie actuellement en medecine veterinaire.
           </p>
 
-          <h2 class="text-h6 mt-6 mb-3">Services Offered</h2>
+          <h2 class="text-h6 mt-6 mb-3">Services offerts</h2>
           <v-chip-group>
-            <v-chip variant="outlined" color="primary">Dog Walking</v-chip>
-            <v-chip variant="outlined" color="primary">House Sitting</v-chip>
-            <v-chip variant="outlined" color="primary">Overnight Care</v-chip>
+            <v-chip variant="outlined" color="primary">Promenade</v-chip>
+            <v-chip variant="outlined" color="primary">Garde a domicile</v-chip>
+            <v-chip variant="outlined" color="primary">Garde de nuit</v-chip>
           </v-chip-group>
         </v-card>
       </v-col>
 
       <v-col cols="12" md="4">
         <v-card flat border color="grey-lighten-3" class="rounded-xl pa-6 sticky-card">
-          <h2 class="text-h5 font-weight-bold mb-4">$45 / night</h2>
+          <h2 class="text-h5 font-weight-bold mb-4">$45 / nuit</h2>
           <v-btn block color="primary" size="x-large" class="rounded-lg mb-4">
-            Book This Sitter
+            Reserver ce gardien
           </v-btn>
           <div class="text-caption text-center text-grey">
-            You won't be charged yet
+            Aucun paiement ne sera preleve pour le moment
           </div>
         </v-card>
       </v-col>

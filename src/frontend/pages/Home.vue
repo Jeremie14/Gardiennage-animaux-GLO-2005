@@ -8,9 +8,9 @@
 
       <v-col cols="12" md="9">
         <div class="d-flex justify-space-between align-center mb-6">
-          <h1 class="text-h4 font-weight-black">Find a Sitter</h1>
+          <h1 class="text-h4 font-weight-black">Trouver un gardien</h1>
           <v-chip variant="outlined" color="primary">
-            {{ sitters.length }} sitters found
+            {{ sitters.length }} gardiens trouves
           </v-chip>
         </div>
 
@@ -36,9 +36,9 @@ const isModalOpen = ref(false)
 const selectedSitter = ref(null)
 
 const sitters = ref([
-  { id: 1, name: 'Sarah J.', rate: 45, rating: 4.9, bio: 'Senior dog specialist.', img: 'https://i.pravatar.cc/150?u=1' },
-  { id: 2, name: 'Mike R.', rate: 30, rating: 4.7, bio: 'Active park walker.', img: 'https://i.pravatar.cc/150?u=2' },
-  { id: 3, name: 'Elena W.', rate: 55, rating: 5.0, bio: 'Vet student.', img: 'https://i.pravatar.cc/150?u=3' },
+  { id: 1, name: 'Sarah J.', rate: 45, rating: 4.9, bio: 'Specialiste des chiens ages.', img: 'https://i.pravatar.cc/150?u=1' },
+  { id: 2, name: 'Mike R.', rate: 30, rating: 4.7, bio: 'Promeneur energique et fiable.', img: 'https://i.pravatar.cc/150?u=2' },
+  { id: 3, name: 'Elena W.', rate: 55, rating: 5.0, bio: 'Etudiante en medecine veterinaire.', img: 'https://i.pravatar.cc/150?u=3' },
 
 ])
 

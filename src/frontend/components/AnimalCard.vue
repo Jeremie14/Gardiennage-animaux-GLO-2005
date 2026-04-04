@@ -7,7 +7,7 @@
       <div>
         <h3 class="text-h6 font-weight-bold text-white">{{ animal.name }}</h3>
         <p class="text-subtitle-2 text-neutral-400">
-          {{ animal.breed }} • {{ animal.age }} yr
+          {{ animal.breed }} • {{ animal.age }} ans
         </p>
       </div>
     </div>
@@ -50,6 +50,6 @@ defineProps({
 }
 :deep(.v-chip.bg-neutral-700) {
   background-color: #262626 !important;
-  color: #FBBF24 !important; /* Amber text for 'Indoor only' */
+  color: #FBBF24 !important;
 }
 </style>

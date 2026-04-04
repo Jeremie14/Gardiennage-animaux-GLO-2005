@@ -5,8 +5,8 @@
         <v-card class="pa-6 rounded-xl" elevation="2">
           <v-card-item class="text-center">
             <v-icon icon="mdi-paw" color="primary" size="large" class="mb-2"></v-icon>
-            <v-card-title class="text-h5 font-weight-bold">Welcome Back</v-card-title>
-            <v-card-subtitle>Log in to manage your pet sittings</v-card-subtitle>
+            <v-card-title class="text-h5 font-weight-bold">Connexion</v-card-title>
+            <v-card-subtitle>Connectez-vous pour gerer vos gardes d'animaux</v-card-subtitle>
           </v-card-item>
 
           <v-card-text>
@@ -22,7 +22,7 @@
             <v-form v-model="isValid" @submit.prevent="handleLogin">
               <v-text-field
                 v-model="email"
-                label="Email"
+                label="Courriel"
                 type="email"
                 variant="outlined"
                 prepend-inner-icon="mdi-email-outline"
@@ -55,14 +55,14 @@
                 :loading="isSubmitting"
                  @click="handleLogin"
               >
-                Log In
+                Connexion
               </v-btn>
             </v-form>
           </v-card-text>
 
           <v-card-actions class="justify-center">
-            <span class="text-body-2">Don't have an account?</span>
-            <v-btn variant="text" color="primary" to="/signup" class="text-none">Sign Up</v-btn>
+            <span class="text-body-2">Vous n'avez pas encore de compte ?</span>
+            <v-btn variant="text" color="primary" to="/signup" class="text-none">Inscription</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>

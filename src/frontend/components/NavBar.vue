@@ -18,15 +18,15 @@
       <v-spacer></v-spacer>
 
       <div class="hidden-sm-and-down">
-        <v-btn variant="text" class="text-capitalize text-grey-darken-2">Find a Sitter</v-btn>
-        <v-btn variant="text" class="text-capitalize text-grey-darken-2">Become a Sitter</v-btn>
+        <v-btn variant="text" class="text-capitalize text-grey-darken-2" to="/">Trouver un gardien</v-btn>
+        <v-btn variant="text" class="text-capitalize text-grey-darken-2" to="/owner">Mes animaux</v-btn>
       </div>
 
       <div class="ml-4 d-flex gap-2">
-        <v-btn variant="text" class="text-capitalize rounded-lg" to="/login">Log In</v-btn>
+        <v-btn variant="text" class="text-capitalize rounded-lg" to="/login">Connexion</v-btn>
         <v-btn color="primary" variant="flat" class="text-capitalize rounded-lg px-6"
         :to="'/signup'">
-          Sign Up
+          Inscription
         </v-btn>
       </div>
     </v-container>
