@@ -34,9 +34,7 @@
       <v-col cols="12" md="4">
         <v-card flat border color="grey-lighten-3" class="rounded-xl pa-6 sticky-card">
           <h2 class="text-h5 font-weight-bold mb-4">$45 / nuit</h2>
-          <v-btn block color="primary" size="x-large" class="rounded-lg mb-4">
-            Reserver ce gardien
-          </v-btn>
+          <v-btn block color="primary" size="x-large" class="rounded-lg mb-4" @click="isBookingOpen = true"> Reserver ce gardien </v-btn>
           <div class="text-caption text-center text-grey">
             Aucun paiement ne sera preleve pour le moment
           </div>
@@ -44,7 +42,20 @@
       </v-col>
     </v-row>
   </v-container>
+  <BookingModal v-model="isBookingOpen" :sitter="sitter" />
 </template>
+
+<script setup>
+import { ref } from 'vue'
+import BookingModal from '@/frontend/components/BookingModal.vue'
+
+const isBookingOpen = ref(false)
+
+const sitter = {
+  id: 1,
+  name: 'Sarah J.'
+}
+</script>
 
 <style scoped>
 .sticky-card {
