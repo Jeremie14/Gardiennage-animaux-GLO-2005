@@ -2,18 +2,18 @@
   <v-app-bar flat border class="px-0">
     <v-container class="d-flex align-center pa-0">
 
-      <div class="d-flex align-center mr-4">
-        <v-icon
-          icon="mdi-paw"
-          color="primary"
-          size="large"
-          class="mr-2"
-        ></v-icon>
+    <router-link to="/" class="brand-link d-flex align-center mr-4">
+      <v-icon
+        icon="mdi-paw"
+        color="primary"
+        size="large"
+        class="mr-2"
+      ></v-icon>
 
-        <v-app-bar-title class="font-weight-black text-primary text-h5 ma-0">
-          PawStay
-        </v-app-bar-title>
-      </div>
+      <v-app-bar-title class="font-weight-black text-primary text-h5 ma-0">
+        PawStay
+      </v-app-bar-title>
+    </router-link>
 
       <v-spacer></v-spacer>
 
@@ -37,5 +37,10 @@
 <style scoped>
 .gap-2 {
   gap: 8px;
+}
+
+.brand-link {
+  text-decoration: none;
+  color: inherit;
 }
 </style>
