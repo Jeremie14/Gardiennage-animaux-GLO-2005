@@ -23,7 +23,7 @@
       </div>
 
       <div class="ml-4 d-flex gap-2">
-        <v-btn variant="text" class="text-capitalize rounded-lg">Log In</v-btn>
+        <v-btn variant="text" class="text-capitalize rounded-lg" to="/login">Log In</v-btn>
         <v-btn color="primary" variant="flat" class="text-capitalize rounded-lg px-6"
         :to="'/signup'">
           Sign Up

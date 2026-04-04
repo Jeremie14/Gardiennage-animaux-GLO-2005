@@ -47,13 +47,13 @@
               ></v-text-field>
 
               <v-btn
-                type="submit"
                 color="primary"
                 block
                 size="large"
                 class="mt-4 rounded-lg font-weight-bold"
-                :disabled="!isValid || isSubmitting"
+                :disabled="isSubmitting"
                 :loading="isSubmitting"
+                 @click="handleLogin"
               >
                 Log In
               </v-btn>
