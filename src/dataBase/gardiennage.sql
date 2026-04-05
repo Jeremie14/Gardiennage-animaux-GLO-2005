@@ -17,6 +17,10 @@ CREATE TABLE Utilisateur (
     motDePasse varchar(20)
 );
 
+ALTER TABLE Utilisateur
+ADD statutCompte ENUM('Actif', 'Inactif'),
+ADD role ENUM('Proprietaire', 'Gardien', 'Administrateur');
+
 CREATE TABLE Animal (
     idAnimal int PRIMARY KEY AUTO_INCREMENT,
     nom varchar(50),
@@ -28,6 +32,11 @@ CREATE TABLE Animal (
     FOREIGN KEY(idProprietaire) REFERENCES Utilisateur(idUtilisateur) ON DELETE CASCADE
 );
 
+ALTER TABLE Animal
+ADD sexe ENUM('Mâle', 'Femelle'),
+ADD temperament varchar(100),
+ADD besoinsSpeciaux varchar(1000);
+
 CREATE TABLE GardienAnimaux (
     idGardien int PRIMARY KEY AUTO_INCREMENT,
     idUtilisateur int,
@@ -38,18 +47,22 @@ CREATE TABLE GardienAnimaux (
     FOREIGN KEY (idUtilisateur) REFERENCES Utilisateur(idUtilisateur) ON DELETE CASCADE
 );
 
+ALTER TABLE GardienAnimaux
+ADD tariffJournalier int(3),
+ADD zoneService varchar(100),
+ADD verificationIdentite BOOLEAN,
+ADD actif BOOLEAN;
+
+ALTER TABLE GardienAnimaux
+DROP COLUMN evaluationMoyenne;
+
 CREATE TABLE Reservation(
     idReservation int PRIMARY KEY AUTO_INCREMENT,
-    dateDebut DATE,
-    dateFin DATE,
-    statut ENUM('TERMINE', 'EN_COURS'),
+    idDemande int UNIQUE,
+    dateConfirmation DATE,
+    statutReservation ENUM('CONFIRMEE', 'EN_COURS', 'TERMINEE', 'ANNULEE'),
     prixTotal int(5),
-    idClient int,
-    idGardien int,
-    idAnimal int,
-    FOREIGN KEY (idGardien) REFERENCES GardienAnimaux(idGardien),
-    FOREIGN KEY (idAnimal) REFERENCES Animal(idAnimal),
-    FOREIGN KEY(idClient) REFERENCES Utilisateur(idUtilisateur)
+    FOREIGN KEY(idDemande) REFERENCES DemandeReservation(idDemande)
 );
 
 CREATE TABLE Paiement(
@@ -58,6 +71,7 @@ CREATE TABLE Paiement(
     datePaiement DATE,
     methodePaiement ENUM('Crédit', 'Débit', 'Espèce'),
     idReservation int,
+    statutPaiement ENUM('EN_ATTENTE', 'PAYE', 'REMBOURSE'),
     FOREIGN KEY(idReservation) REFERENCES Reservation(idReservation)
 );
 
@@ -68,9 +82,48 @@ CREATE TABLE Avis(
     dateAvis DATE,
     idProprietaire int,
     idGardien int,
+    idReservation int,
+    FOREIGN KEY(idReservation) REFERENCES Reservation(idReservation),
     FOREIGN KEY(idGardien) REFERENCES GardienAnimaux(idGardien),
     FOREIGN KEY(idProprietaire) REFERENCES Utilisateur(idUtilisateur)
 );
+
+CREATE TABLE Disponibilite(
+    idDisponibilite int PRIMARY KEY AUTO_INCREMENT,
+    idGardien int,
+    dateDebut DATE,
+    dateFin DATE,
+    statutDisponibilite ENUM('DISPONIBLE', 'INDISPONIBLE', 'RESERVE'),
+    FOREIGN KEY(idGardien) REFERENCES GardienAnimaux(idGardien)
+);
+
+CREATE TABLE Service(
+    idService int PRIMARY KEY AUTO_INCREMENT,
+    idGardien int,
+    typeService varchar(100),
+    description varchar(100),
+    tarif int(3),
+    dureeEstimee int,
+    FOREIGN KEY(idGardien) REFERENCES GardienAnimaux(idGardien)
+);
+
+CREATE TABLE DemandeReservation(
+    idDemande int PRIMARY KEY AUTO_INCREMENT,
+    idProprietaire int,
+    idGardien int,
+    idAnimal int,
+    idService int,
+    dateDebut DATE,
+    dateFin DATE,
+    message varchar(1000),
+    dateCreation DATE,
+    statutDemande ENUM('ACCEPTEE', 'REJETEE', 'EN_ATTENTE', 'ANNULEE'),
+    FOREIGN KEY(idService) REFERENCES Service(idService),
+    FOREIGN KEY(idAnimal) REFERENCES Animal(idAnimal),
+    FOREIGN KEY(idGardien) REFERENCES GardienAnimaux(idGardien),
+    FOREIGN KEY(idProprietaire) REFERENCES Utilisateur(idUtilisateur)
+);
+
 
 INSERT INTO Utilisateur (nom, prenom, email, numTelephone, adresse, dateInscription, motDePasse)
 VALUES
