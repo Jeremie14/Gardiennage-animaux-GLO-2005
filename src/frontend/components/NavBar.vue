@@ -1,46 +1,65 @@
+<script setup>
+import {useUserStore} from "@/stores/UserStore.js";
+import { useRouter } from 'vue-router'
+
+const userStore = useUserStore()
+const router = useRouter()
+
+const handleLogout = () => {
+  userStore.logout()
+  router.push('/') // Redirect home after logout
+}
+</script>
+
 <template>
   <v-app-bar flat border class="px-0">
     <v-container class="d-flex align-center pa-0">
-
-    <router-link to="/" class="brand-link d-flex align-center mr-4">
-      <v-icon
-        icon="mdi-paw"
-        color="primary"
-        size="large"
-        class="mr-2"
-      ></v-icon>
-
-      <v-app-bar-title class="font-weight-black text-primary text-h5 ma-0">
-        PawStay
-      </v-app-bar-title>
-    </router-link>
+      <router-link to="/" class="brand-link d-flex align-center mr-4 text-decoration-none">
+        <v-icon icon="mdi-paw" color="primary" size="large" class="mr-2"></v-icon>
+        <v-app-bar-title class="font-weight-black text-primary text-h5 ma-0">
+          PawStay
+        </v-app-bar-title>
+      </router-link>
 
       <v-spacer></v-spacer>
 
-      <div class="hidden-sm-and-down">
-        <v-btn variant="text" class="text-capitalize text-grey-darken-2" to="/">Trouver un gardien</v-btn>
-        <v-btn variant="text" class="text-capitalize text-grey-darken-2" to="/owner">Mes animaux</v-btn>
+      <div v-if="userStore.isAuthenticated" class="hidden-sm-and-down">
+
+        <template v-if="userStore.role === 'owner'">
+          <v-btn variant="text" class="text-capitalize" to="/">Trouver un gardien</v-btn>
+          <v-btn variant="text" class="text-capitalize" to="/owner/dashboard">Mes animaux</v-btn>
+        </template>
+
+      <template v-else-if="userStore.role === 'sitter'">
+  <v-btn variant="text" to="/sitter/bookings">Mes demandes</v-btn>
+        <v-btn variant="text" to="/sitter/profile">Mon profil</v-btn>
+</template>
       </div>
 
-      <div class="ml-4 d-flex gap-2">
-        <v-btn variant="text" class="text-capitalize rounded-lg" to="/login">Connexion</v-btn>
-        <v-btn color="primary" variant="flat" class="text-capitalize rounded-lg px-6"
-        :to="'/signup'">
-          Inscription
+      <div class="ml-4 d-flex ga-2">
+        <template v-if="!userStore.isAuthenticated">
+          <v-btn variant="text" class="text-capitalize" to="/login">Connexion</v-btn>
+          <v-btn color="primary" variant="flat" class="text-capitalize rounded-lg" to="/signup">
+            Inscription
+          </v-btn>
+        </template>
+
+        <v-btn
+          v-else
+          @click="handleLogout"
+          variant="tonal"
+          color="error"
+          class="text-capitalize rounded-lg"
+        >
+          Déconnexion
         </v-btn>
       </div>
     </v-container>
   </v-app-bar>
 </template>
 
-
 <style scoped>
-.gap-2 {
-  gap: 8px;
-}
-
 .brand-link {
-  text-decoration: none;
   color: inherit;
 }
 </style>

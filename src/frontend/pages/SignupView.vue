@@ -33,8 +33,41 @@
                 variant="outlined"
                 color="primary"
                 density="comfortable"
+                prepend-inner-icon="mdi-account"
                 @update:model-value="clearFormError"
               ></v-text-field>
+
+              <v-text-field
+                v-model="address"
+                label="Adresse"
+                variant="outlined"
+                color="primary"
+                density="comfortable"
+                prepend-inner-icon="mdi-map-marker"
+                @update:model-value="clearFormError"
+              ></v-text-field>
+
+              <v-text-field
+                v-model="phone"
+                label="Numéro de téléphone"
+                variant="outlined"
+                color="primary"
+                density="comfortable"
+                prepend-inner-icon="mdi-phone"
+                placeholder="ex: 819-555-1234"
+                @update:model-value="clearFormError"
+              ></v-text-field>
+
+              <v-select
+                v-model="gender"
+                label="Sexe"
+                :items="['Homme', 'Femme', 'Autre', 'Préfère ne pas répondre']"
+                variant="outlined"
+                color="primary"
+                density="comfortable"
+                prepend-inner-icon="mdi-gender-male-female"
+                @update:model-value="clearFormError"
+              ></v-select>
 
               <v-text-field
                 v-model="email"
@@ -42,6 +75,7 @@
                 variant="outlined"
                 color="primary"
                 density="comfortable"
+                prepend-inner-icon="mdi-email"
                 @update:model-value="clearFormError"
               ></v-text-field>
 
@@ -52,6 +86,7 @@
                 variant="outlined"
                 color="primary"
                 density="comfortable"
+                prepend-inner-icon="mdi-lock"
                 @update:model-value="clearFormError"
               ></v-text-field>
 
@@ -62,6 +97,7 @@
                 variant="outlined"
                 color="primary"
                 density="comfortable"
+                prepend-inner-icon="mdi-lock-check"
                 @update:model-value="clearFormError"
               ></v-text-field>
 
@@ -140,6 +176,9 @@ const step = ref(1)
 const selectedRole = ref(null)
 
 const fullName = ref('')
+const address = ref('')
+const phone = ref('')
+const gender = ref(null)
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
@@ -152,13 +191,18 @@ const clearFormError = () => {
 const goToStepTwo = () => {
   formError.value = ''
 
-  if (!fullName.value || !email.value || !password.value || !confirmPassword.value) {
+  if (!fullName.value || !address.value || !phone.value || !gender.value || !email.value || !password.value || !confirmPassword.value) {
     formError.value = 'Veuillez remplir tous les champs.'
     return
   }
 
   if (!/.+@.+\..+/.test(email.value)) {
     formError.value = 'Le courriel doit etre valide.'
+    return
+  }
+
+  if (!/^[\d\s\-()+]{7,15}$/.test(phone.value)) {
+    formError.value = 'Le numéro de téléphone doit être valide.'
     return
   }
 
@@ -175,15 +219,15 @@ const goToStepTwo = () => {
   step.value = 2
 }
 
+import { useUserStore} from "@/stores/UserStore.js";
+
+const userStore = useUserStore()
+
 const finishSignUp = () => {
-  formError.value = ''
-
-  if (!selectedRole.value) {
-    formError.value = 'Veuillez selectionner un role.'
-    return
+  if (selectedRole.value) {
+    userStore.login(selectedRole.value)
+    router.push(selectedRole.value === 'owner' ? '/owner/dashboard' : '/sitter/profile')
   }
-
-  router.push('/login')
 }
 </script>
 
@@ -191,7 +235,7 @@ const finishSignUp = () => {
 .role-square {
   height: 220px;
   transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-  background-color: white !important; /* Keeps the squares visible on transparent background */
+  background-color: white !important;
 }
 
 .role-square:hover {
@@ -201,10 +245,5 @@ const finishSignUp = () => {
 
 .transition-all {
   transition: all 0.5s ease-in-out;
-}
-
-/* Make sure the "Back" button is visible on transparent */
-.v-btn--variant-text {
-  font-weight: bold;
 }
 </style>
