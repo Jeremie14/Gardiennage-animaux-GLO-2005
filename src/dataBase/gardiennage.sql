@@ -237,6 +237,14 @@ VALUES
 ('Hamel','Isabelle','isabelle.hamel@gmail.com','5814432099','58 rue St-Paul','2026-01-24','PwdU0099W3'),
 ('Tessier','Patrick','patrick.tessier@gmail.com','5814432100','59 rue du Soleil','2020-02-25','PwdU0100X3');
 
+INSERT INTO Utilisateur
+(nom, prenom, email, numTelephone, adresse, dateInscription, motDePasse, statutCompte, role)
+VALUES
+('Lefebvre','Alexandre','alexandre.lefebvre@gmail.com','5814432101','245 rue Saint-Joseph Est','2026-01-01','AdminPwd1','Actif','Administrateur'),
+('Gagnon','Marianne','marianne.gagnon@gmail.com','5814432102','89 avenue Cartier','2026-01-02','AdminPwd2','Actif','Administrateur'),
+('Tremblay','Samuel','samuel.tremblay@gmail.com','5814432103','312 boulevard Charest Ouest','2026-01-03','AdminPwd3','Actif','Administrateur'),
+('Bouchard','Catherine','catherine.bouchard@gmail.com','5814432104','67 rue Saint-Jean','2026-01-04','AdminPwd4','Actif','Administrateur'),
+('Roy','Julien','julien.roy@gmail.com','5814432105','150 chemin Sainte-Foy','2026-01-05','AdminPwd5','Actif','Administrateur');
 
 INSERT INTO Animal (nom, espece, race, age, poids, idProprietaire) VALUES
 -- CHIENS (20)
@@ -404,6 +412,8 @@ INSERT INTO GardienAnimaux (idUtilisateur, experience, tarifHoraire, description
 SELECT * FROM Animal;
 SELECT * FROM Utilisateur;
 SELECT * FROM GardienAnimaux;
+
+
 
 -- Génère l'id des gardiens ainsi que leur prénom et nom
 SELECT G.idGardien, U.prenom, U.nom FROM GardienAnimaux G, Utilisateur U WHERE G.idUtilisateur = U.idUtilisateur;
