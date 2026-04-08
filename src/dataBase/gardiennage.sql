@@ -17,6 +17,13 @@ CREATE TABLE Utilisateur (
     motDePasse varchar(20)
 );
 
+ALTER TABLE Utilisateur
+ADD statutCompte ENUM('Actif', 'Inactif'),
+ADD role ENUM('Proprietaire', 'Gardien', 'Administrateur'); -- Soit proprio soit gardien
+
+ALTER TABLE Utilisateur
+ADD photoDeProfil varchar(100); -- Généer des photos
+
 CREATE TABLE Animal (
     idAnimal int PRIMARY KEY AUTO_INCREMENT,
     nom varchar(50),
@@ -28,28 +35,46 @@ CREATE TABLE Animal (
     FOREIGN KEY(idProprietaire) REFERENCES Utilisateur(idUtilisateur) ON DELETE CASCADE
 );
 
+ALTER TABLE Animal
+ADD sexe ENUM('Mâle', 'Femelle'),
+ADD temperament varchar(100),
+ADD besoinsSpeciaux varchar(1000);
+
 CREATE TABLE GardienAnimaux (
-    idGardien int PRIMARY KEY AUTO_INCREMENT,
-    idUtilisateur int,
-    experience int(2),
-    tarifHoraire int(3),
-    description varchar(1000),
-    evaluationMoyenne int(3), -- A modifier --> Fonction calcul moyenne
-    FOREIGN KEY (idUtilisateur) REFERENCES Utilisateur(idUtilisateur) ON DELETE CASCADE
+    idUtilisateur INT PRIMARY KEY,
+    experience INT(2),
+    tarifHoraire INT(3),
+    description VARCHAR(1000),
+    evaluationMoyenne INT(3), -- A modifier --> Fonction calcul moyenne
+    FOREIGN KEY (idUtilisateur)
+        REFERENCES Utilisateur(idUtilisateur)
+        ON DELETE CASCADE
 );
+
+DROP TABLE Disponibilite;
+DROP TABLE Service;
+DROP TABLE demandeReservation;
+DROP TABLE Reservation;
+DROP TABLE Avis;
+DROP TABLE Paiement;
+
+
+ALTER TABLE GardienAnimaux
+ADD tariffJournalier int(3),
+ADD zoneService varchar(100),
+ADD verificationIdentite BOOLEAN,
+ADD actif BOOLEAN;
+
+ALTER TABLE GardienAnimaux
+DROP COLUMN evaluationMoyenne;
 
 CREATE TABLE Reservation(
     idReservation int PRIMARY KEY AUTO_INCREMENT,
-    dateDebut DATE,
-    dateFin DATE,
-    statut ENUM('TERMINE', 'EN_COURS'),
+    idDemande int UNIQUE,
+    dateConfirmation DATE,
+    statutReservation ENUM('CONFIRMEE', 'EN_COURS', 'TERMINEE', 'ANNULEE'),
     prixTotal int(5),
-    idClient int,
-    idGardien int,
-    idAnimal int,
-    FOREIGN KEY (idGardien) REFERENCES GardienAnimaux(idGardien),
-    FOREIGN KEY (idAnimal) REFERENCES Animal(idAnimal),
-    FOREIGN KEY(idClient) REFERENCES Utilisateur(idUtilisateur)
+    FOREIGN KEY(idDemande) REFERENCES DemandeReservation(idDemande)
 );
 
 CREATE TABLE Paiement(
@@ -58,6 +83,7 @@ CREATE TABLE Paiement(
     datePaiement DATE,
     methodePaiement ENUM('Crédit', 'Débit', 'Espèce'),
     idReservation int,
+    statutPaiement ENUM('EN_ATTENTE', 'PAYE', 'REMBOURSE'),
     FOREIGN KEY(idReservation) REFERENCES Reservation(idReservation)
 );
 
@@ -68,9 +94,48 @@ CREATE TABLE Avis(
     dateAvis DATE,
     idProprietaire int,
     idGardien int,
-    FOREIGN KEY(idGardien) REFERENCES GardienAnimaux(idGardien),
+    idReservation int,
+    FOREIGN KEY(idReservation) REFERENCES Reservation(idReservation),
+    FOREIGN KEY(idGardien) REFERENCES GardienAnimaux(idUtilisateur),
     FOREIGN KEY(idProprietaire) REFERENCES Utilisateur(idUtilisateur)
 );
+
+CREATE TABLE Disponibilite(
+    idDisponibilite int PRIMARY KEY AUTO_INCREMENT,
+    idGardien int,
+    dateDebut DATE,
+    dateFin DATE,
+    statutDisponibilite ENUM('DISPONIBLE', 'INDISPONIBLE', 'RESERVE'),
+    FOREIGN KEY(idGardien) REFERENCES GardienAnimaux(idUtilisateur)
+);
+
+CREATE TABLE Service(
+    idService int PRIMARY KEY AUTO_INCREMENT,
+    idGardien int,
+    typeService varchar(100),
+    description varchar(100),
+    tarif int(3),
+    dureeEstimee int,
+    FOREIGN KEY(idGardien) REFERENCES GardienAnimaux(idUtilisateur)
+);
+
+CREATE TABLE DemandeReservation(
+    idDemande int PRIMARY KEY AUTO_INCREMENT,
+    idProprietaire int,
+    idGardien int,
+    idAnimal int,
+    idService int,
+    dateDebut DATE,
+    dateFin DATE,
+    message varchar(1000),
+    dateCreation DATE,
+    statutDemande ENUM('ACCEPTEE', 'REJETEE', 'EN_ATTENTE', 'ANNULEE'),
+    FOREIGN KEY(idService) REFERENCES Service(idService),
+    FOREIGN KEY(idAnimal) REFERENCES Animal(idAnimal),
+    FOREIGN KEY(idGardien) REFERENCES GardienAnimaux(idUtilisateur),
+    FOREIGN KEY(idProprietaire) REFERENCES Utilisateur(idUtilisateur)
+);
+
 
 INSERT INTO Utilisateur (nom, prenom, email, numTelephone, adresse, dateInscription, motDePasse)
 VALUES
@@ -184,6 +249,14 @@ VALUES
 ('Hamel','Isabelle','isabelle.hamel@gmail.com','5814432099','58 rue St-Paul','2026-01-24','PwdU0099W3'),
 ('Tessier','Patrick','patrick.tessier@gmail.com','5814432100','59 rue du Soleil','2020-02-25','PwdU0100X3');
 
+INSERT INTO Utilisateur
+(nom, prenom, email, numTelephone, adresse, dateInscription, motDePasse, statutCompte, role)
+VALUES
+('Lefebvre','Alexandre','alexandre.lefebvre@gmail.com','5814432101','245 rue Saint-Joseph Est','2026-01-01','AdminPwd1','Actif','Administrateur'),
+('Gagnon','Marianne','marianne.gagnon@gmail.com','5814432102','89 avenue Cartier','2026-01-02','AdminPwd2','Actif','Administrateur'),
+('Tremblay','Samuel','samuel.tremblay@gmail.com','5814432103','312 boulevard Charest Ouest','2026-01-03','AdminPwd3','Actif','Administrateur'),
+('Bouchard','Catherine','catherine.bouchard@gmail.com','5814432104','67 rue Saint-Jean','2026-01-04','AdminPwd4','Actif','Administrateur'),
+('Roy','Julien','julien.roy@gmail.com','5814432105','150 chemin Sainte-Foy','2026-01-05','AdminPwd5','Actif','Administrateur');
 
 INSERT INTO Animal (nom, espece, race, age, poids, idProprietaire) VALUES
 -- CHIENS (20)
@@ -352,12 +425,24 @@ SELECT * FROM Animal;
 SELECT * FROM Utilisateur;
 SELECT * FROM GardienAnimaux;
 
+
+
 -- Génère l'id des gardiens ainsi que leur prénom et nom
 SELECT G.idGardien, U.prenom, U.nom FROM GardienAnimaux G, Utilisateur U WHERE G.idUtilisateur = U.idUtilisateur;
 
 -- Requête qui renvoie le nom des clients et le nombre d'animaux qu'il possède
+SELECT U.prenom, U.nom, COUNT(*) AS Nombre
+FROM Utilisateur U, Animal A
+WHERE U.idUtilisateur = A.idProprietaire
+GROUP BY A.idProprietaire;
 
 -- Requête qui renvoie les gardiens qui ont un taux horaire en bas de la moyenne (À MODIFIER)
 SELECT idGardien, tarifHoraire
 FROM GardienAnimaux
 WHERE tarifHoraire < (SELECT AVG(tarifHoraire) FROM GardienAnimaux);
+
+-- Requête qui renvoie les propriétaires et leur animaux
+SELECT U.idUtilisateur, U.prenom, U.nom, A.nom, A.idAnimal
+FROM Utilisateur U
+INNER JOIN Animal A
+ON U.idUtilisateur = A.idProprietaire;
