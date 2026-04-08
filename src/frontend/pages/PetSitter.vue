@@ -1,54 +1,36 @@
 <template>
-  <v-container class="py-8">
-    <v-row>
+  <v-container class="py-10">
+    <v-row justify="center">
       <v-col cols="12" md="8">
-        <v-card flat border color="grey-lighten-3" class="rounded-xl pa-6">
-          <div class="d-flex align-center mb-4">
-            <v-avatar size="80" class="mr-4">
+        <v-card flat border class="rounded-xl pa-8">
+          <div class="d-flex align-center flex-column flex-sm-row">
+            <v-avatar size="120" class="mr-sm-6 mb-4 mb-sm-0">
               <v-img src="https://i.pravatar.cc/150?u=1"></v-img>
             </v-avatar>
-            <div>
-              <h1 class="text-h4">Sarah J.</h1>
-              <v-chip color="amber" variant="flat" size="small" class="mt-1">
-                ★ 4.9 (120 reviews)
-              </v-chip>
+            <div class="text-center text-sm-left">
+              <h1 class="text-h3 font-weight-black">Sarah J.</h1>
+              <v-rating model-value="4.9" color="amber" density="compact" readonly half-increments></v-rating>
+              <div class="text-h6 text-primary mt-2">45 $ / nuit</div>
             </div>
           </div>
 
-          <v-divider class="my-4"></v-divider>
+          <v-divider class="my-8"></v-divider>
 
-          <h2 class="text-h6 mb-2">About Me</h2>
-          <p class="text-body-1 text-grey-darken-2">
-            Professional pet sitter with over 5 years of experience. I specialize in senior dogs and nervous cats. I am certified in pet CPR and currently studying veterinary science.
-          </p>
+          <h3 class="text-h5 font-weight-bold mb-4">À propos</h3>
+          <p class="text-body-1 text-grey-darken-2">Spécialiste des chiens âgés...</p>
 
-          <h2 class="text-h6 mt-6 mb-3">Services Offered</h2>
-          <v-chip-group>
-            <v-chip variant="outlined" color="primary">Dog Walking</v-chip>
-            <v-chip variant="outlined" color="primary">House Sitting</v-chip>
-            <v-chip variant="outlined" color="primary">Overnight Care</v-chip>
-          </v-chip-group>
-        </v-card>
-      </v-col>
-
-      <v-col cols="12" md="4">
-        <v-card flat border color="grey-lighten-3" class="rounded-xl pa-6 sticky-card">
-          <h2 class="text-h5 font-weight-bold mb-4">$45 / night</h2>
-          <v-btn block color="primary" size="x-large" class="rounded-lg mb-4">
-            Book This Sitter
+          <v-btn block color="primary" size="x-large" class="rounded-xl mt-10" @click="isBookingOpen = true">
+            Réserver maintenant
           </v-btn>
-          <div class="text-caption text-center text-grey">
-            You won't be charged yet
-          </div>
         </v-card>
       </v-col>
     </v-row>
+    <BookingModal v-model="isBookingOpen" :sitter="{name: 'Sarah J.'}" />
   </v-container>
 </template>
 
-<style scoped>
-.sticky-card {
-  position: sticky;
-  top: 90px;
-}
-</style>
+<script setup>
+import { ref } from 'vue'
+import BookingModal from "@/frontend/components/BookingModal.vue";
+const isBookingOpen = ref(false)
+</script>

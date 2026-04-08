@@ -5,50 +5,64 @@
         <v-card class="pa-6 rounded-xl" elevation="2">
           <v-card-item class="text-center">
             <v-icon icon="mdi-paw" color="primary" size="large" class="mb-2"></v-icon>
-            <v-card-title class="text-h5 font-weight-bold">Welcome Back</v-card-title>
-            <v-card-subtitle>Log in to manage your pet sittings</v-card-subtitle>
+            <v-card-title class="text-h5 font-weight-bold">Connexion</v-card-title>
+            <v-card-subtitle>Connectez-vous pour gerer vos gardes d'animaux</v-card-subtitle>
           </v-card-item>
 
           <v-card-text>
+            <v-alert
+              v-if="formError"
+              type="error"
+              variant="tonal"
+              class="mb-4"
+            >
+              {{ formError }}
+            </v-alert>
+
             <v-form v-model="isValid" @submit.prevent="handleLogin">
               <v-text-field
                 v-model="email"
-                label="Email"
+                label="Courriel"
                 type="email"
                 variant="outlined"
                 prepend-inner-icon="mdi-email-outline"
-                :rules="[v => !!v || 'Email is required']"
+                :rules="emailRules"
+                :disabled="isSubmitting"
+                @update:model-value="clearFormError"
                 required
               ></v-text-field>
 
               <v-text-field
                 v-model="password"
-                label="Password"
+                label="Mot de passe"
                 variant="outlined"
                 prepend-inner-icon="mdi-lock-outline"
                 :type="showPassword ? 'text' : 'password'"
                 :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                 @click:append-inner="showPassword = !showPassword"
-                :rules="[v => !!v || 'Password is required']"
+                :rules="passwordRules"
+                :disabled="isSubmitting"
+                @update:model-value="clearFormError"
                 required
               ></v-text-field>
 
               <v-btn
-                type="submit"
                 color="primary"
                 block
                 size="large"
                 class="mt-4 rounded-lg font-weight-bold"
-                :disabled="!isValid"
+                :disabled="isSubmitting"
+                :loading="isSubmitting"
+                 @click="handleLogin"
               >
-                Log In
+                Connexion
               </v-btn>
             </v-form>
           </v-card-text>
 
           <v-card-actions class="justify-center">
-            <span class="text-body-2">Don't have an account?</span>
-            <v-btn variant="text" color="primary" to="/signup" class="text-none">Sign Up</v-btn>
+            <span class="text-body-2">Vous n'avez pas encore de compte ?</span>
+            <v-btn variant="text" color="primary" to="/signup" class="text-none">Inscription</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -58,13 +72,67 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const email = ref('')
 const password = ref('')
 const showPassword = ref(false)
-const isValid = ref(false)
+const isValid = ref(null)
+const isSubmitting = ref(false)
+const formError = ref('')
 
-const handleLogin = () => {
-  console.log('Logging in with:', email.value, password.value)
+const emailRules = [
+  (v) => !!v || 'Le courriel est obligatoire',
+  (v) => /.+@.+\..+/.test(v || '') || 'Le courriel doit etre valide',
+]
+
+const passwordRules = [
+  (v) => !!v || 'Le mot de passe est obligatoire',
+  (v) => (v || '').length >= 8 || 'Le mot de passe doit contenir au moins 8 caracteres',
+]
+
+const clearFormError = () => {
+  formError.value = ''
+}
+
+const handleLogin = async () => {
+  formError.value = ''
+
+  if (!email.value || !password.value) {
+    formError.value = 'Veuillez remplir tous les champs.'
+    return
+  }
+
+  if (!/.+@.+\..+/.test(email.value)) {
+    formError.value = 'Le courriel doit etre valide.'
+    return
+  }
+
+  if (password.value.length < 8) {
+    formError.value = 'Le mot de passe doit contenir au moins 8 caracteres.'
+    return
+  }
+
+  isSubmitting.value = true
+
+  try {
+    await new Promise((resolve) => setTimeout(resolve, 800))
+
+    const validEmail = 'client@pawstay.com'
+    const validPassword = 'motdepasse123'
+
+    if (email.value !== validEmail || password.value !== validPassword) {
+      formError.value = 'Adresse courriel ou mot de passe incorrect.'
+      return
+    }
+
+    router.push('/owner')
+  } catch (error) {
+    formError.value = 'Une erreur est survenue. Veuillez reessayer.'
+  } finally {
+    isSubmitting.value = false
+  }
 }
 </script>

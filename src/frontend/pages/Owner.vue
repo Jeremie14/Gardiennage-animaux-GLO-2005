@@ -8,7 +8,7 @@
             SJ
           </v-avatar>
           <div>
-            <h1 class="text-h4 font-weight-black text-grey-darken-4">Good morning, Sarah</h1>
+            <h1 class="text-h4 font-weight-black text-grey-darken-4">Bonjour, Sarah</h1>
             <p class="text-subtitle-1 text-grey-darken-1">
               {{ new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) }}
             </p>
@@ -31,7 +31,7 @@
 
       <section class="mb-12">
         <div class="d-flex align-center mb-6">
-          <h2 class="section-title mb-0">My Pets</h2>
+          <h2 class="section-title mb-0">Mes animaux</h2>
           <v-divider class="ml-4"></v-divider>
         </div>
 
@@ -47,25 +47,25 @@
               class="add-pet-card rounded-xl d-flex flex-column align-center justify-center cursor-pointer bg-white"
             >
               <v-icon icon="mdi-plus" size="32" color="indigo-lighten-2"></v-icon>
-              <span class="text-indigo-lighten-1 font-weight-bold mt-2">Add a pet</span>
+              <span class="text-indigo-lighten-1 font-weight-bold mt-2">Ajouter un animal</span>
             </v-card>
           </v-col>
         </v-row>
       </section>
 
       <section>
-        <h2 class="section-title">Upcoming Booking</h2>
+        <h2 class="section-title">Reservation a venir</h2>
         <v-card border flat class="rounded-xl pa-6 bg-white">
           <div class="d-flex align-center">
             <v-avatar color="indigo-lighten-5" size="50" class="mr-4">
               <v-icon icon="mdi-calendar-check" color="primary"></v-icon>
             </v-avatar>
             <div>
-              <p class="font-weight-bold mb-0">Next stay with Maya Kim</p>
+              <p class="font-weight-bold mb-0">Prochaine garde avec Maya Kim</p>
               <p class="text-caption text-grey">April 12 - April 15</p>
             </div>
             <v-spacer></v-spacer>
-            <v-btn variant="tonal" color="primary" class="rounded-lg">View Details</v-btn>
+            <v-btn variant="tonal" color="primary" class="rounded-lg">Voir les details</v-btn>
           </div>
         </v-card>
       </section>
@@ -79,19 +79,19 @@ import { ref } from 'vue'
 import AnimalCard from "@/frontend/components/AnimalCard.vue";
 
 const stats = ref([
-  { label: 'My Pets', value: 2 },
-  { label: 'Upcoming Stays', value: 1 },
-  { label: 'Past Bookings', value: 7 }
+  { label: 'Mes animaux', value: 2 },
+  { label: 'Gardes a venir', value: 1 },
+  { label: 'Reservations passees', value: 7 }
 ])
 
 const myPets = ref([
   {
     name: 'Biscuit', species: 'dog', breed: 'Golden Retriever', age: 4,
-    tags: [{ text: 'Vaccinated', color: 'indigo-lighten-5' }, { text: 'Neutered', color: 'indigo-lighten-5' }]
+    tags: [{ text: 'Vaccine', color: 'indigo-lighten-5' }, { text: 'Sterilise', color: 'indigo-lighten-5' }]
   },
   {
     name: 'Luna', species: 'cat', breed: 'Domestic Shorthair', age: 2,
-    tags: [{ text: 'Vaccinated', color: 'indigo-lighten-5' }, { text: 'Indoor only', color: 'amber-lighten-5' }]
+    tags: [{ text: 'Vaccine', color: 'indigo-lighten-5' }, { text: 'Interieur seulement', color: 'amber-lighten-5' }]
   }
 ])
 </script>

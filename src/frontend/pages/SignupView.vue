@@ -11,33 +11,111 @@
           ]"
           :flat="step === 2"
         >
+          <v-alert
+              v-if="formError"
+              type="error"
+              variant="tonal"
+              class="mb-4"
+            >
+              {{ formError }}
+          </v-alert>
           <v-window v-model="step">
 
             <v-window-item :value="1">
               <div class="text-center mb-8">
                 <v-icon icon="mdi-paw" color="primary" size="40" class="mb-2"></v-icon>
-                <h2 class="text-h4 font-weight-black">Create Account</h2>
+                <h2 class="text-h4 font-weight-black">Creer un compte</h2>
               </div>
 
-              <v-text-field label="Full Name" variant="outlined" color="primary" density="comfortable"></v-text-field>
-              <v-text-field label="Email" variant="outlined" color="primary" density="comfortable"></v-text-field>
-              <v-text-field label="Password" type="password" variant="outlined" color="primary" density="comfortable"></v-text-field>
+              <v-text-field
+                v-model="fullName"
+                label="Nom complet"
+                variant="outlined"
+                color="primary"
+                density="comfortable"
+                prepend-inner-icon="mdi-account"
+                @update:model-value="clearFormError"
+              ></v-text-field>
+
+              <v-text-field
+                v-model="address"
+                label="Adresse"
+                variant="outlined"
+                color="primary"
+                density="comfortable"
+                prepend-inner-icon="mdi-map-marker"
+                @update:model-value="clearFormError"
+              ></v-text-field>
+
+              <v-text-field
+                v-model="phone"
+                label="Numéro de téléphone"
+                variant="outlined"
+                color="primary"
+                density="comfortable"
+                prepend-inner-icon="mdi-phone"
+                placeholder="ex: 819-555-1234"
+                @update:model-value="clearFormError"
+              ></v-text-field>
+
+              <v-select
+                v-model="gender"
+                label="Sexe"
+                :items="['Homme', 'Femme', 'Autre', 'Préfère ne pas répondre']"
+                variant="outlined"
+                color="primary"
+                density="comfortable"
+                prepend-inner-icon="mdi-gender-male-female"
+                @update:model-value="clearFormError"
+              ></v-select>
+
+              <v-text-field
+                v-model="email"
+                label="Courriel"
+                variant="outlined"
+                color="primary"
+                density="comfortable"
+                prepend-inner-icon="mdi-email"
+                @update:model-value="clearFormError"
+              ></v-text-field>
+
+              <v-text-field
+                v-model="password"
+                label="Mot de passe"
+                type="password"
+                variant="outlined"
+                color="primary"
+                density="comfortable"
+                prepend-inner-icon="mdi-lock"
+                @update:model-value="clearFormError"
+              ></v-text-field>
+
+              <v-text-field
+                v-model="confirmPassword"
+                label="Confirmer le mot de passe"
+                type="password"
+                variant="outlined"
+                color="primary"
+                density="comfortable"
+                prepend-inner-icon="mdi-lock-check"
+                @update:model-value="clearFormError"
+              ></v-text-field>
 
               <v-btn
                 block
                 color="primary"
                 size="x-large"
                 class="rounded-lg mt-4 font-weight-bold"
-                @click="step = 2"
+                @click="goToStepTwo"
               >
-                Next
+                Suivant
               </v-btn>
             </v-window-item>
 
             <v-window-item :value="2">
               <div class="text-center mb-10">
-                <h2 class="text-h3 font-weight-black mb-2">I am a...</h2>
-                <p class="text-grey-darken-1 text-h6">Select your primary role</p>
+                <h2 class="text-h3 font-weight-black mb-2">Je suis...</h2>
+                <p class="text-grey-darken-1 text-h6">Selectionnez votre role principal</p>
               </div>
 
               <v-row justify="center" class="ga-4">
@@ -49,7 +127,7 @@
                     @click="selectedRole = 'owner'"
                   >
                     <v-icon icon="mdi-dog" size="64" class="mb-4"></v-icon>
-                    <span class="text-h6 font-weight-bold">Pet Owner</span>
+                    <span class="text-h6 font-weight-bold">Proprietaire</span>
                   </v-card>
                 </v-col>
 
@@ -61,14 +139,14 @@
                     @click="selectedRole = 'sitter'"
                   >
                     <v-icon icon="mdi-briefcase-check" size="64" class="mb-4"></v-icon>
-                    <span class="text-h6 font-weight-bold">Pet Sitter</span>
+                    <span class="text-h6 font-weight-bold">Gardien</span>
                   </v-card>
                 </v-col>
               </v-row>
 
               <div class="d-flex justify-center align-center mt-12">
                 <v-btn variant="text" color="grey-darken-1" class="mr-4" @click="step = 1">
-                  Back to info
+                  Retour
                 </v-btn>
                 <v-btn
                   color="primary"
@@ -77,7 +155,7 @@
                   :disabled="!selectedRole"
                   @click="finishSignUp"
                 >
-                  Create Account
+                  Creer un compte
                 </v-btn>
               </div>
             </v-window-item>
@@ -97,9 +175,59 @@ const router = useRouter()
 const step = ref(1)
 const selectedRole = ref(null)
 
+const fullName = ref('')
+const address = ref('')
+const phone = ref('')
+const gender = ref(null)
+const email = ref('')
+const password = ref('')
+const confirmPassword = ref('')
+const formError = ref('')
+
+const clearFormError = () => {
+  formError.value = ''
+}
+
+const goToStepTwo = () => {
+  formError.value = ''
+
+  if (!fullName.value || !address.value || !phone.value || !gender.value || !email.value || !password.value || !confirmPassword.value) {
+    formError.value = 'Veuillez remplir tous les champs.'
+    return
+  }
+
+  if (!/.+@.+\..+/.test(email.value)) {
+    formError.value = 'Le courriel doit etre valide.'
+    return
+  }
+
+  if (!/^[\d\s\-()+]{7,15}$/.test(phone.value)) {
+    formError.value = 'Le numéro de téléphone doit être valide.'
+    return
+  }
+
+  if (password.value.length < 8) {
+    formError.value = 'Le mot de passe doit contenir au moins 8 caracteres.'
+    return
+  }
+
+  if (password.value !== confirmPassword.value) {
+    formError.value = 'Les mots de passe ne correspondent pas.'
+    return
+  }
+
+  step.value = 2
+}
+
+import { useUserStore} from "@/stores/UserStore.js";
+
+const userStore = useUserStore()
+
 const finishSignUp = () => {
-  // Add your API logic here
-  router.push('/')
+  if (selectedRole.value) {
+    userStore.login(selectedRole.value)
+    router.push(selectedRole.value === 'owner' ? '/owner/dashboard' : '/sitter/profile')
+  }
 }
 </script>
 
@@ -107,7 +235,7 @@ const finishSignUp = () => {
 .role-square {
   height: 220px;
   transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-  background-color: white !important; /* Keeps the squares visible on transparent background */
+  background-color: white !important;
 }
 
 .role-square:hover {
@@ -117,10 +245,5 @@ const finishSignUp = () => {
 
 .transition-all {
   transition: all 0.5s ease-in-out;
-}
-
-/* Make sure the "Back" button is visible on transparent */
-.v-btn--variant-text {
-  font-weight: bold;
 }
 </style>
