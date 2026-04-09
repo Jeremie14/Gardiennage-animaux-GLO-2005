@@ -440,3 +440,8 @@ SELECT U.idUtilisateur, U.prenom, U.nom, A.nom, A.idAnimal
 FROM Utilisateur U
 INNER JOIN Animal A
 ON U.idUtilisateur = A.idProprietaire;
+
+ SELECT U.nom, U.prenom, U.email, U.adresse, U.photoDeProfil
+        FROM GardienAnimaux G, Utilisateur U
+        WHERE  G.idUtilisateur = U.idUtilisateur;
+
