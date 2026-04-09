@@ -18,7 +18,25 @@ defineEmits(['book'])
     </v-card-item>
 
     <v-card-text class="text-body-2 text-grey-darken-1">
-      {{ sitter.bio }}
+      <p class="mb-3">{{ sitter.bio }}</p>
+      <div class="mb-3">
+        <div class="text-caption font-weight-bold mb-1">Services</div>
+        <v-chip-group column>
+          <v-chip
+            v-for="service in sitter.services"
+            :key="service"
+            size="small"
+            variant="outlined"
+            color="primary"
+          >
+            {{ service }}
+          </v-chip>
+        </v-chip-group>
+      </div>
+      <div>
+        <div class="text-caption font-weight-bold mb-1">Animaux acceptes</div>
+        <div>{{ sitter.animalsAccepted.join(', ') }}</div>
+      </div>
     </v-card-text>
 
     <v-divider></v-divider>

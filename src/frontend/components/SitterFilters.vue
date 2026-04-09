@@ -30,6 +30,18 @@
 
     <v-divider class="my-4"></v-divider>
 
+    <v-label class="mb-2">Type d'animal accepte</v-label>
+    <v-select
+      v-model="selectedAnimal"
+      :items="['Chien', 'Chat', 'Oiseau', 'Hamster']"
+      label="Choisir un type"
+      variant="outlined"
+      density="comfortable"
+      clearable
+      hide-details
+      class="mb-4"
+    ></v-select>
+
     <v-label>Prix maximal</v-label>
     <v-slider
       v-model="maxPrice"
@@ -51,11 +63,13 @@ import { ref } from 'vue'
 
 const emit = defineEmits(['apply-filters'])
 const selectedServices = ref([])
+const selectedAnimal = ref(null)
 const maxPrice = ref(150)
 
 const applyFilters = () => {
   emit('apply-filters', {
     selectedServices: selectedServices.value,
+    selectedAnimal: selectedAnimal.value,
     maxPrice: maxPrice.value
   })
 }
