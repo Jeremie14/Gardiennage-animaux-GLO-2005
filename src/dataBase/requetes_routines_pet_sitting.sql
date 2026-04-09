@@ -235,7 +235,6 @@ DELIMITER ;
 -- 7) créer la réservation
 -- 8) créer le paiement
 --
--- Cette procédure automatise un vrai traitement métier complexe.
 -- ---------------------------------------------------------
 
 DROP PROCEDURE IF EXISTS AccepterDemandeEtCreerReservation;
