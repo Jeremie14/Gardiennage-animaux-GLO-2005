@@ -56,11 +56,16 @@ const openBooking = (sitter) => {
 const applyFilters = (filters) => {
   filteredSitters.value = allSitters.filter((sitter) => {
     const matchesPrice = sitter.rate <= filters.maxPrice
+
     const matchesServices =
       !filters.selectedServices.length ||
       filters.selectedServices.every((service) => sitter.services.includes(service))
 
-    return matchesPrice && matchesServices
+    const matchesAnimal =
+      !filters.selectedAnimal ||
+      sitter.animalsAccepted.includes(filters.selectedAnimal)
+
+    return matchesPrice && matchesServices && matchesAnimal
   })
 }
 
