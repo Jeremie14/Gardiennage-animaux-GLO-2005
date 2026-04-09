@@ -424,6 +424,7 @@ INSERT INTO GardienAnimaux (idUtilisateur, experience, tarifHoraire, description
 SELECT * FROM Animal;
 SELECT * FROM Utilisateur;
 SELECT * FROM GardienAnimaux;
+SELECT DISTINCT espece FROM Animal WHERE espece NOT IN('chien', 'chat', 'oiseau', 'hamster');
 
 
 
