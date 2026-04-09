@@ -53,3 +53,17 @@ def insert_demandeReservation(debut, fin, message, creation): #Ajouter le statut
     request = (f'INSERT INTO demandeReservation(dateDebut, dateFin, message, dateCreation) VALUES ("{debut}", "{fin}", "{message}", "{creation}");')
     cursor.execute(request)
     connection.commit()
+
+#Transmet les ajouts d'animaux à la bd
+def insert_animal(nom, espece, race, age, poids, sexe, temperament, besoins):
+    request = (f'INSERT INTO Animal(nom, espece, race, age, poids, sexe, temperament, besoinsSpeciaux)'
+               f' VALUES("{nom}", "{espece}", "{race}", "{age}", "{poids}", "{sexe}", "{temperament}", "{besoins}");')
+    cursor.execute(request)
+    connection.commit()
+
+def insert_gardien(experience, tarifH, tarifJ, zone, verification, actif):
+    request = (f'INSERT INTO GardienAnimaux(experience, tarifHoraire, description, tariffJournalier, zoneService, verficationIdentite, actif) '
+               f'VALUES("{experience}", "{tarifH}", "{tarifJ}", "{zone}", "{verification}", "{actif}");')
+    cursor.execute(request)
+    connection.commit()
+
