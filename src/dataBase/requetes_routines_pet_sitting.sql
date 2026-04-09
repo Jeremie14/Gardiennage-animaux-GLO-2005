@@ -19,7 +19,7 @@
 -- - filtrage temporel
 -- ---------------------------------------------------------
 SELECT
-    G.idGardienAnimaux,
+    G.idGardien,
     U.prenom,
     U.nom,
     G.zoneService,
@@ -29,20 +29,20 @@ FROM GardienAnimaux G
 JOIN Utilisateur U
     ON U.idUtilisateur = G.idUtilisateur
 JOIN Service S
-    ON S.idGardienAnimauxAnimaux = G.idGardienAnimauxAnimaux
+    ON S.idGardien = G.idGardien
 JOIN Disponibilite D
-    ON D.idGardienAnimauxAnimaux = G.idGardienAnimauxAnimaux
+    ON D.idGardien = G.idGardien
 WHERE G.actif = TRUE
   AND S.typeService = 'GARDE_JOUR'
-  AND D.statut = 'DISPONIBLE'
+  AND D.statutDisponibilite = 'DISPONIBLE'
   AND D.dateDebut <= '2026-05-10'
   AND D.dateFin >= '2026-05-12'
-  AND G.idGardienAnimaux NOT IN (
-        SELECT DR.idGardienAnimaux
+  AND G.idGardien NOT IN (
+        SELECT DR.idGardien
         FROM DemandeReservation DR
         JOIN Reservation R
             ON R.idDemande = DR.idDemande
-        WHERE R.statut IN ('CONFIRMEE', 'EN_COURS')
+        WHERE R.statutReservation IN ('CONFIRMEE', 'EN_COURS')
           AND DR.dateDebut <= '2026-05-12'
           AND DR.dateFin >= '2026-05-10'
   );
@@ -57,7 +57,7 @@ WHERE G.actif = TRUE
 -- - tri
 -- ---------------------------------------------------------
 SELECT
-    G.idGardienAnimaux,
+    G.idGardien,
     U.prenom,
     U.nom,
     ROUND(AVG(A.note), 2) AS noteMoyenne,
@@ -66,8 +66,8 @@ FROM GardienAnimaux G
 JOIN Utilisateur U
     ON U.idUtilisateur = G.idUtilisateur
 LEFT JOIN Avis A
-    ON A.idGardienAnimaux = G.idGardienAnimaux
-GROUP BY G.idGardienAnimaux, U.prenom, U.nom
+    ON A.idGardien = G.idGardien
+GROUP BY G.idGardien, U.prenom, U.nom
 ORDER BY noteMoyenne DESC, nombreAvis DESC;
 
 
@@ -80,7 +80,7 @@ ORDER BY noteMoyenne DESC, nombreAvis DESC;
 -- - jointures multiples
 -- ---------------------------------------------------------
 SELECT
-    G.idGardienAnimaux,
+    G.idGardien,
     U.prenom,
     U.nom,
     COUNT(R.idReservation) AS nbReservations,
@@ -89,11 +89,11 @@ FROM GardienAnimaux G
 JOIN Utilisateur U
     ON U.idUtilisateur = G.idUtilisateur
 LEFT JOIN DemandeReservation DR
-    ON DR.idGardienAnimaux = G.idGardienAnimaux
+    ON DR.idGardien = G.idGardien
 LEFT JOIN Reservation R
     ON R.idDemande = DR.idDemande
-   AND R.statut IN ('CONFIRMEE', 'EN_COURS', 'TERMINEE')
-GROUP BY G.idGardienAnimaux, U.prenom, U.nom
+   AND R.statutReservation IN ('CONFIRMEE', 'EN_COURS', 'TERMINEE')
+GROUP BY G.idGardien, U.prenom, U.nom
 ORDER BY revenuTotal DESC;
 
 
@@ -116,7 +116,7 @@ JOIN DemandeReservation DR
     ON DR.idProprietaire = U.idUtilisateur
 JOIN Reservation R
     ON R.idDemande = DR.idDemande
-WHERE R.statut IN ('CONFIRMEE', 'EN_COURS', 'TERMINEE')
+WHERE R.statutReservation IN ('CONFIRMEE', 'EN_COURS', 'TERMINEE')
 GROUP BY U.idUtilisateur, U.prenom, U.nom
 HAVING SUM(R.prixTotal) > (
     SELECT AVG(total_client)
@@ -125,7 +125,7 @@ HAVING SUM(R.prixTotal) > (
         FROM DemandeReservation DR2
         JOIN Reservation R2
             ON R2.idDemande = DR2.idDemande
-        WHERE R2.statut IN ('CONFIRMEE', 'EN_COURS', 'TERMINEE')
+        WHERE R2.statutReservation IN ('CONFIRMEE', 'EN_COURS', 'TERMINEE')
         GROUP BY DR2.idProprietaire
     ) AS depenses
 );
@@ -140,7 +140,7 @@ HAVING SUM(R.prixTotal) > (
 -- - LIMIT
 -- ---------------------------------------------------------
 SELECT
-    G.idGardienAnimaux,
+    G.idGardien,
     U.prenom,
     U.nom,
     ROUND(AVG(A.note), 2) AS noteMoyenne,
@@ -149,8 +149,8 @@ FROM GardienAnimaux G
 JOIN Utilisateur U
     ON U.idUtilisateur = G.idUtilisateur
 JOIN Avis A
-    ON A.idGardienAnimaux = G.idGardienAnimaux
-GROUP BY G.idGardienAnimaux, U.prenom, U.nom
+    ON A.idGardien = G.idGardien
+GROUP BY G.idGardien, U.prenom, U.nom
 HAVING COUNT(A.idAvis) >= 3
 ORDER BY noteMoyenne DESC, nbAvis DESC
 LIMIT 5;
@@ -171,7 +171,7 @@ SELECT
     U2.nom AS nomGardienAnimaux,
     DR.dateDebut,
     DR.dateFin,
-    R.statut,
+    R.statutReservation,
     R.prixTotal
 FROM Reservation R
 JOIN DemandeReservation DR
@@ -179,7 +179,7 @@ JOIN DemandeReservation DR
 JOIN Animal A
     ON A.idAnimal = DR.idAnimal
 JOIN GardienAnimaux G
-    ON G.idGardienAnimaux = DR.idGardienAnimaux
+    ON G.idGardien = DR.idGardien
 JOIN Utilisateur U2
     ON U2.idUtilisateur = G.idUtilisateur
 WHERE DR.idProprietaire = 1
@@ -192,16 +192,16 @@ ORDER BY DR.dateDebut;
 -- =========================================================
 
 -- ---------------------------------------------------------
--- Fonction : CalculerNoteMoyenneGardienAnimaux
+-- Fonction : CalculerNoteMoyenneGardien
 -- But :
 -- Retourner la note moyenne d'un GardienAnimaux à partir de la table Avis.
 -- Si le GardienAnimaux n'a aucun avis, la fonction retourne 0.00.
 -- ---------------------------------------------------------
 
-DROP FUNCTION IF EXISTS CalculerNoteMoyenneGardienAnimaux;
+DROP FUNCTION IF EXISTS CalculerNoteMoyenneGardien;
 DELIMITER //
 
-CREATE FUNCTION CalculerNoteMoyenneGardienAnimaux(p_idGardienAnimaux INT)
+CREATE FUNCTION CalculerNoteMoyenneGardien(p_idGardien INT)
 RETURNS DECIMAL(4,2)
 DETERMINISTIC
 BEGIN
@@ -210,7 +210,7 @@ BEGIN
     SELECT ROUND(AVG(note), 2)
     INTO v_note_moyenne
     FROM Avis
-    WHERE idGardienAnimaux = p_idGardienAnimaux;
+    WHERE idGardien = p_idGardien;
 
     RETURN COALESCE(v_note_moyenne, 0.00);
 END //
@@ -245,7 +245,7 @@ CREATE PROCEDURE AccepterDemandeEtCreerReservation(
     IN p_methodePaiement VARCHAR(20)
 )
 BEGIN
-    DECLARE v_idGardienAnimaux INT;
+    DECLARE v_idGardien INT;
     DECLARE v_dateDebut DATE;
     DECLARE v_dateFin DATE;
     DECLARE v_tarif DECIMAL(8,2);
@@ -267,13 +267,13 @@ BEGIN
 
     -- Récupération des informations de la demande et du tarif du service
     SELECT
-        DR.idGardienAnimaux,
+        DR.idGardien,
         DR.dateDebut,
         DR.dateFin,
-        DR.statut,
+        DR.statutDemande,
         S.tarif
     INTO
-        v_idGardienAnimaux,
+        v_idGardien,
         v_dateDebut,
         v_dateFin,
         v_statutDemande,
@@ -307,8 +307,8 @@ BEGIN
     FROM Reservation R
     JOIN DemandeReservation DR2
         ON DR2.idDemande = R.idDemande
-    WHERE DR2.idGardienAnimaux = v_idGardienAnimaux
-      AND R.statut IN ('CONFIRMEE', 'EN_COURS')
+    WHERE DR2.idGardien = v_idGardien
+      AND R.statutReservation IN ('CONFIRMEE', 'EN_COURS')
       AND DR2.dateDebut <= v_dateFin
       AND DR2.dateFin >= v_dateDebut;
 
@@ -323,11 +323,11 @@ BEGIN
 
     -- Mise à jour du statut de la demande
     UPDATE DemandeReservation
-    SET statut = 'ACCEPTEE'
+    SET statutDemande = 'ACCEPTEE'
     WHERE idDemande = p_idDemande;
 
     -- Création de la réservation
-    INSERT INTO Reservation(idDemande, dateConfirmation, prixTotal, statut)
+    INSERT INTO Reservation(idDemande, dateConfirmation, prixTotal,statutReservation)
     VALUES (p_idDemande, CURDATE(), v_prixTotal, 'CONFIRMEE');
 
     SET v_idReservation = LAST_INSERT_ID();
@@ -378,7 +378,7 @@ BEGIN
     START TRANSACTION;
 
     -- Récupérer la réservation ciblée
-    SELECT idDemande, statut
+    SELECT idDemande, statutReservation
     INTO v_idDemande, v_statutReservation
     FROM Reservation
     WHERE idReservation = p_idReservation;
@@ -397,12 +397,12 @@ BEGIN
 
     -- Mise à jour de la réservation
     UPDATE Reservation
-    SET statut = 'ANNULEE'
+    SET statutReservation = 'ANNULEE'
     WHERE idReservation = p_idReservation;
 
     -- Mise à jour de la demande liée
     UPDATE DemandeReservation
-    SET statut = 'ANNULEE'
+    SET statutDemande = 'ANNULEE'
     WHERE idDemande = v_idDemande;
 
     -- Vérifier le statut du paiement
@@ -431,13 +431,13 @@ DELIMITER ;
 -- ---------------------------------------------------------
 -- Test de la fonction
 -- ---------------------------------------------------------
--- SELECT CalculerNoteMoyenneGardienAnimaux(2);
+-- SELECT CalculerNoteMoyenneGardien(2);
 
 
 -- ---------------------------------------------------------
 -- Test de la procédure d'acceptation
 -- ---------------------------------------------------------
--- CALL AccepterDemandeEtCreerReservation(1, 'CARTE');
+-- CALL AccepterDemandeEtCreerReservation(1, 'Crédit');
 
 
 -- ---------------------------------------------------------
