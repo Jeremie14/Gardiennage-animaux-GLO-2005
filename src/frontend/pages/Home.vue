@@ -13,12 +13,20 @@
             {{ filteredSitters.length }} gardiens trouves
           </v-chip>
         </div>
-
-        <v-row>
+        <v-row v-if="filteredSitters.length > 0">
           <v-col v-for="sitter in filteredSitters" :key="sitter.id" cols="12" sm="6" lg="4">
             <SitterCard :sitter="sitter" @book="openBooking" />
           </v-col>
         </v-row>
+
+        <v-alert
+          v-else
+          type="info"
+          variant="tonal"
+          class="rounded-xl"
+        >
+          Aucun gardien ne correspond aux filtres selectionnes.
+        </v-alert>
       </v-col>
     </v-row>
 
