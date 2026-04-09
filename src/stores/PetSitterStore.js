@@ -23,8 +23,7 @@ export const useSitterStore = defineStore('sitter', {
       this.loading = true
       this.error = null
       try {
-        const data = await sitterService.getAllSitters()
-        this.sitters = Array.isArray(data) ? data : (data?.data || [])
+        this.sitters = await sitterService.getAllSitters();
       } catch (err) {
         this.error = "Impossible de charger la liste des gardiens."
         console.error(err)

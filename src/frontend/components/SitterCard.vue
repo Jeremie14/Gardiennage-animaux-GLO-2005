@@ -9,14 +9,14 @@
     <v-card-item>
       <div class="d-flex justify-space-between align-center">
         <v-card-title class="font-weight-bold">
-          {{ sitter.name || 'Gardien #' + sitter.id }}
+          {{ sitter.nom }} {{sitter.prenom }}
         </v-card-title>
         <v-chip size="small" color="amber" variant="flat">
           ★ {{ sitter.rating || '5.0' }}
         </v-chip>
       </div>
       <v-card-subtitle class="text-primary font-weight-bold">
-        {{ sitter.tariffJournalier || sitter.rate || 0 }} $ / nuit
+        {{ sitter.tarifHoraire}} $ / nuit
       </v-card-subtitle>
     </v-card-item>
 
