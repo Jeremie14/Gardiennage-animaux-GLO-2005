@@ -89,7 +89,11 @@ def insert_gardien(id_utilisateur, experience, tarif_horaire, description,
 
 
 def get_gardien_by_id(id_utilisateur):
-    cursor.execute(f'SELECT * FROM GardienAnimaux WHERE idUtilisateur={id_utilisateur};')
+    cursor.execute(f'SELECT G.*, U.nom, U.prenom, U.email, U.adresse, U.photoDeProfil  '
+                   f'FROM GardienAnimaux G '
+                   f'JOIN Utilisateur U ON G.idUtilisateur = U.idUtilisateur '
+                   f'WHERE G.idUtilisateur={id_utilisateur};')
+
     return cursor.fetchone()
 
 

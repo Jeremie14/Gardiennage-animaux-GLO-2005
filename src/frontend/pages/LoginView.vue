@@ -6,17 +6,17 @@
           <v-card-item class="text-center">
             <v-icon icon="mdi-paw" color="primary" size="large" class="mb-2"></v-icon>
             <v-card-title class="text-h5 font-weight-bold">Connexion</v-card-title>
-            <v-card-subtitle>Connectez-vous pour gerer vos gardes d'animaux</v-card-subtitle>
+            <v-card-subtitle>Connectez-vous pour gérer vos gardes d'animaux</v-card-subtitle>
           </v-card-item>
 
           <v-card-text>
             <v-alert
-              v-if="formError"
+              v-if="formError || userStore.error"
               type="error"
               variant="tonal"
               class="mb-4"
             >
-              {{ formError }}
+              {{ formError || userStore.error }}
             </v-alert>
 
             <v-form v-model="isValid" @submit.prevent="handleLogin">
@@ -27,7 +27,7 @@
                 variant="outlined"
                 prepend-inner-icon="mdi-email-outline"
                 :rules="emailRules"
-                :disabled="isSubmitting"
+                :disabled="userStore.loading"
                 @update:model-value="clearFormError"
                 required
               ></v-text-field>
@@ -41,7 +41,7 @@
                 :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                 @click:append-inner="showPassword = !showPassword"
                 :rules="passwordRules"
-                :disabled="isSubmitting"
+                :disabled="userStore.loading"
                 @update:model-value="clearFormError"
                 required
               ></v-text-field>
@@ -51,9 +51,9 @@
                 block
                 size="large"
                 class="mt-4 rounded-lg font-weight-bold"
-                :disabled="isSubmitting"
-                :loading="isSubmitting"
-                 @click="handleLogin"
+                type="submit"
+                :loading="userStore.loading"
+                :disabled="!isValid || userStore.loading"
               >
                 Connexion
               </v-btn>
@@ -73,66 +73,49 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserStore} from "@/stores/UserStore.js";
 
 const router = useRouter()
+const userStore = useUserStore()
 
 const email = ref('')
 const password = ref('')
 const showPassword = ref(false)
-const isValid = ref(null)
-const isSubmitting = ref(false)
+const isValid = ref(false)
 const formError = ref('')
 
 const emailRules = [
   (v) => !!v || 'Le courriel est obligatoire',
-  (v) => /.+@.+\..+/.test(v || '') || 'Le courriel doit etre valide',
+  (v) => /.+@.+\..+/.test(v || '') || 'Le courriel doit être valide',
 ]
 
 const passwordRules = [
   (v) => !!v || 'Le mot de passe est obligatoire',
-  (v) => (v || '').length >= 8 || 'Le mot de passe doit contenir au moins 8 caracteres',
+  (v) => (v || '').length >= 8 || 'Le mot de passe doit contenir au moins 8 caractères',
 ]
 
 const clearFormError = () => {
   formError.value = ''
+  userStore.error = null
 }
 
 const handleLogin = async () => {
+  if (!isValid.value) return
+
   formError.value = ''
 
-  if (!email.value || !password.value) {
-    formError.value = 'Veuillez remplir tous les champs.'
-    return
-  }
-
-  if (!/.+@.+\..+/.test(email.value)) {
-    formError.value = 'Le courriel doit etre valide.'
-    return
-  }
-
-  if (password.value.length < 8) {
-    formError.value = 'Le mot de passe doit contenir au moins 8 caracteres.'
-    return
-  }
-
-  isSubmitting.value = true
-
   try {
-    await new Promise((resolve) => setTimeout(resolve, 800))
+    const success = await userStore.login(email.value, password.value)
 
-    const validEmail = 'client@pawstay.com'
-    const validPassword = 'motdepasse123'
-
-    if (email.value !== validEmail || password.value !== validPassword) {
-      formError.value = 'Adresse courriel ou mot de passe incorrect.'
-      return
+    if (success) {
+      if (userStore.userRole === 'Gardien') {
+        await router.push('/sitter/profile')
+      } else {
+        router.push('/')
+      }
     }
-
-    router.push('/owner')
   } catch (error) {
-    formError.value = 'Une erreur est survenue. Veuillez reessayer.'
-  } finally {
-    isSubmitting.value = false
+    console.error("Échec de la connexion", error)
   }
 }
 </script>

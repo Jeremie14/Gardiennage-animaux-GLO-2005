@@ -15,25 +15,23 @@ export const useUserStore = defineStore('user', {
   },
 
   actions: {
-    async login(email, password) {
-      this.error = null
-      try {
-        const response = await userService.loginUser(email, password)
+   async login(email, password) {
+  this.error = null
+  try {
+    const response = await userService.loginUser(email, password)
+    const userData = response.data
 
-        const userData = response.data.data || response.data
+    console.log("Données reçues du serveur:", userData)
 
-        this.user = userData
+    this.user = userData
+    localStorage.setItem('user', JSON.stringify(userData))
 
-        localStorage.setItem('user', JSON.stringify(userData))
-
-        return true
-      } catch (err) {
-        this.error = "Identifiants invalides ou erreur serveur."
-        console.error("Erreur login store:", err)
-        throw err
-      } finally {
-      }
-    },
+    return true
+  } catch (err) {
+    this.error = "Identifiants invalides ou erreur serveur."
+    throw err
+  }
+},
 
     async signup(userData) {
       try {

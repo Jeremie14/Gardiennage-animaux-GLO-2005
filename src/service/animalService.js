@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_URL = 'http://localhost:8080/animal'
+const API_URL = 'http://127.0.0.1:5000/animal'
 
 export default {
   async createAnimal(nom, espece, race, age, poids, idProprietaire, sexe, temperament, besoinsSpeciaux) {

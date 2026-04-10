@@ -46,7 +46,6 @@ import { ref, onMounted, watch } from 'vue'
 import SitterFilters from "@/frontend/components/SitterFilters.vue"
 import SitterCard from '@/frontend/components/SitterCard.vue'
 import BookingModal from '@/frontend/components/BookingModal.vue'
-// Import du store
 import {useSitterStore} from "@/stores/PetSitterStore.js";
 
 const sitterStore = useSitterStore()

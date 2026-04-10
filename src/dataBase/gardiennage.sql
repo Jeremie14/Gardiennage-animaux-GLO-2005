@@ -445,3 +445,12 @@ ON U.idUtilisateur = A.idProprietaire;
         FROM GardienAnimaux G, Utilisateur U
         WHERE  G.idUtilisateur = U.idUtilisateur;
 
+ SELECT G.*, U.nom, U.prenom, U.email, U.adresse, U.photoDeProfil
+        FROM GardienAnimaux G
+        JOIN Utilisateur U ON G.idUtilisateur = U.idUtilisateur ;
+
+
+INSERT INTO Animal (nom, espece, race, age, poids, idProprietaire) VALUES
+-- CHIENS (20)
+('Rex','chien','Labrador',5,28,107),
+('Bella','chien','Beagle',3,12,107)

@@ -12,9 +12,6 @@ def index():
     return jsonify({'status': 'API Gardiennage en ligne'})
 
 
-# ═══════════════════════════════════════════════════════
-#  UTILISATEURS
-# ═══════════════════════════════════════════════════════
 
 @app.route('/user/register', methods=['POST'])
 def user_register():
@@ -37,10 +34,19 @@ def user_login():
     user = get_utilisateur_by_email(data['email'])
     if user is None:
         return jsonify({'error': 'Utilisateur introuvable'}), 404
-    # Index 7 = motDePasse dans le SELECT *
     if user[7] != data['password']:
         return jsonify({'error': 'Mot de passe incorrect'}), 401
-    return jsonify({'status': 'ok', 'idUtilisateur': user[0], 'role': user[10]}), 200
+    return jsonify({
+        'status': 'ok',
+         'id': user[0],
+        'name': user[1],
+        'lastName': user[2],
+        'email': user[3],
+        'num': user[4],
+        'adress': user[5],
+        'date': str(user[6]),
+        'role': user[9]
+    }), 200
 
 
 @app.route('/user/<int:id_utilisateur>', methods=['GET'])
@@ -49,14 +55,14 @@ def get_user(id_utilisateur):
     if user is None:
         return jsonify({'error': 'Introuvable'}), 404
     return jsonify({
-        'idUtilisateur': user[0],
-        'nom': user[1],
-        'prenom': user[2],
+        'id': user[0],
+        'name': user[1],
+        'lastName': user[2],
         'email': user[3],
-        'numTelephone': user[4],
-        'adresse': user[5],
-        'dateInscription': str(user[6]),
-        'role': user[10]
+        'num': user[4],
+        'adress': user[5],
+        'date': str(user[6]),
+        'role': user[9]
     })
 
 
@@ -80,9 +86,7 @@ def delete_user(id_utilisateur):
     return jsonify({'status': 'deleted'})
 
 
-# ═══════════════════════════════════════════════════════
-#  ANIMAUX
-# ═══════════════════════════════════════════════════════
+
 
 # @app.route('/animal', methods=['POST'])
 # def create_animal():
@@ -105,9 +109,9 @@ def delete_user(id_utilisateur):
 def get_animaux(id_proprietaire):
     animaux = get_animaux_by_proprietaire(id_proprietaire)
     result = [
-        {'idAnimal': a[0], 'nom': a[1], 'espece': a[2], 'race': a[3],
-         'age': a[4], 'poids': a[5], 'idProprietaire': a[6],
-         'sexe': a[7], 'temperament': a[8], 'besoinsSpeciaux': a[9]}
+        {'idAnimal': a[0], 'name': a[1], 'species': a[2], 'race': a[3],
+         'age': a[4], 'weight': a[5], 'idOwner': a[6],
+         'sexe': a[7], 'temper': a[8], 'specialNeeds': a[9]}
         for a in animaux
     ]
     return jsonify(result)
@@ -118,10 +122,6 @@ def delete_animal_route(id_animal):
     delete_animal(id_animal)
     return jsonify({'status': 'deleted'})
 
-
-# ═══════════════════════════════════════════════════════
-#  GARDIENS
-# ═══════════════════════════════════════════════════════
 
 @app.route('/gardien', methods=['POST'])
 def create_gardien():
@@ -141,9 +141,9 @@ def create_gardien():
 def list_gardiens():
     gardiens = get_all_gardiens()
     result = [
-        {'idUtilisateur': g[0], 'experience': g[1], 'tarifHoraire': g[2],
-         'description': g[3], 'tariffJournalier': g[4], 'zoneService': g[5],
-         'nom': g[7], 'prenom': g[8], 'email': g[9], 'adresse': g[10]}
+        {'id': g[0], 'experience': g[1], 'priceHour': g[2],
+         'description': g[3], 'priceDay': g[4], 'zoneService': g[5],
+         'latName': g[8], 'name': g[9], 'email': g[10], 'adress': g[11]}
         for g in gardiens
     ]
     return jsonify(result)
@@ -154,10 +154,9 @@ def get_gardien(id_utilisateur):
     g = get_gardien_by_id(id_utilisateur)
     if g is None:
         return jsonify({'error': 'Introuvable'}), 404
-    return jsonify({
-        'idUtilisateur': g[0], 'experience': g[1], 'tarifHoraire': g[2],
-        'description': g[3], 'tariffJournalier': g[4], 'zoneService': g[5]
-    })
+    return jsonify({'id': g[0], 'experience': g[1], 'priceHour': g[2],
+         'description': g[3], 'priceDay': g[4], 'zoneService': g[5],
+         'latName': g[8], 'name': g[9], 'email': g[10], 'adress': g[11]})
 
 
 @app.route('/gardien/<int:id_utilisateur>', methods=['PUT'])
@@ -173,10 +172,6 @@ def update_gardien_route(id_utilisateur):
     )
     return jsonify({'status': 'updated'})
 
-
-# ═══════════════════════════════════════════════════════
-#  SERVICES
-# ═══════════════════════════════════════════════════════
 
 @app.route('/service', methods=['POST'])
 def create_service():
@@ -208,10 +203,6 @@ def delete_service_route(id_service):
     return jsonify({'status': 'deleted'})
 
 
-# ═══════════════════════════════════════════════════════
-#  DISPONIBILITÉS
-# ═══════════════════════════════════════════════════════
-
 @app.route('/disponibilite', methods=['POST'])
 def create_disponibilite():
     data = request.get_json()
@@ -241,10 +232,6 @@ def update_disponibilite(id_disponibilite):
     update_disponibilite_statut(id_disponibilite, data['statut'])
     return jsonify({'status': 'updated'})
 
-
-# ═══════════════════════════════════════════════════════
-#  DEMANDES DE RÉSERVATION
-# ═══════════════════════════════════════════════════════
 
 @app.route('/demande', methods=['POST'])
 def create_demande():
@@ -290,10 +277,6 @@ def _format_demande(d):
     }
 
 
-# ═══════════════════════════════════════════════════════
-#  RÉSERVATIONS
-# ═══════════════════════════════════════════════════════
-
 @app.route('/reservation', methods=['POST'])
 def create_reservation():
     data = request.get_json()
@@ -323,10 +306,6 @@ def update_reservation_statut(id_reservation):
     update_statut_reservation(id_reservation, data['statut'])
     return jsonify({'status': 'updated'})
 
-
-# ═══════════════════════════════════════════════════════
-#  PAIEMENTS
-# ═══════════════════════════════════════════════════════
 
 @app.route('/paiement', methods=['POST'])
 def create_paiement():
@@ -358,10 +337,6 @@ def update_paiement_statut(id_paiement):
     update_statut_paiement(id_paiement, data['statut'])
     return jsonify({'status': 'updated'})
 
-
-# ═══════════════════════════════════════════════════════
-#  AVIS
-# ═══════════════════════════════════════════════════════
 
 @app.route('/avis', methods=['POST'])
 def create_avis():

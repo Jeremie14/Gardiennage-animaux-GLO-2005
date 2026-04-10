@@ -35,8 +35,7 @@ export const useSitterStore = defineStore('sitter', {
     async fetchSitterById(id) {
       this.loading = true
       try {
-        const data = await sitterService.getSitterById(id)
-        this.selectedSitter = data
+        this.selectedSitter = await sitterService.getSitterById(id)
       } catch (err) {
         this.error = "Erreur lors de la récupération du profil."
         console.error(err)
