@@ -59,5 +59,17 @@ export const useAnimalStore = defineStore('animal', {
         throw err
       }
     },
-  },
+    async updateAnimalPic(animalId, picture) {
+      this.error = null
+      try {
+        await animalService.updateAnimalPic(animalId, picture)
+        const animal = this.animals.find(a => a.idAnimal === animalId)
+        if (animal) animal.picture = picture
+      } catch (err) {
+        this.error = "Erreur lors de la mise à jour de la photo."
+        console.error(err)
+        throw err
+      }
+    },
+  }
 })

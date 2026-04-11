@@ -9,7 +9,7 @@
         <v-card flat border class="rounded-xl pa-8">
           <div class="d-flex align-center mb-6">
             <v-avatar size="100" class="mr-6 shadow-lg">
-              <v-img :src="sitterStore.selectedSitter?.img || 'https://i.pravatar.cc/150'"></v-img>
+              <v-img :src="sitterStore.selectedSitter?.photo || 'https://i.pravatar.cc/150'"></v-img>
             </v-avatar>
             <div>
               <h1 class="text-h4 font-weight-black">

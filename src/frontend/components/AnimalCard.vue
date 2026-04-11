@@ -9,8 +9,8 @@
           class="d-none"
           @change="handleImageUpload"
         />
-        <div class="avatar-circle" :class="{ 'has-image': photoUrl }">
-          <img v-if="photoUrl" :src="photoUrl" alt="Pet photo" class="pet-photo" />
+        <div class="avatar-circle" :class="{ 'has-image': animal.picture }">
+          <img v-if="animal.picture" :src="animal.picture" alt="Pet photo" class="pet-photo" />
           <span v-else class="text-h4">{{ speciesEmoji }}</span>
           <div class="avatar-overlay">
             <v-icon color="white" size="18">mdi-camera</v-icon>
@@ -55,6 +55,8 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useAnimalStore } from '@/stores/AnimalStore.js'
+const animalStore = useAnimalStore()
 
 const props = defineProps({
   animal: {
@@ -66,7 +68,6 @@ const props = defineProps({
 defineEmits(['delete'])
 
 const fileInput = ref(null)
-const photoUrl = ref(null)
 
 const speciesEmoji = computed(() => {
   const map = { chien: '🐕', chat: '🐈', lapin: '🐇', oiseau: '🐦', furet: '🦡', hamster: '🐹' }
@@ -81,8 +82,8 @@ function handleImageUpload(event) {
   const file = event.target.files?.[0]
   if (!file) return
   const reader = new FileReader()
-  reader.onload = (e) => {
-    photoUrl.value = e.target.result
+  reader.onload = async (e) => {
+    await animalStore.updateAnimalPic(props.animal.idAnimal, e.target.result)
   }
   reader.readAsDataURL(file)
 }

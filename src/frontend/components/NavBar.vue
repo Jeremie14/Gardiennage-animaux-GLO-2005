@@ -27,12 +27,12 @@ const handleLogout = () => {
 
       <div v-if="userStore.isAuthenticated" class="hidden-sm-and-down d-flex ga-2">
 
-    <template v-if="userStore.userRole === 'Proprietaire' || userStore.userRole === 'owner'">
+    <template v-if="userStore.userRole === 'Proprietaire'">
       <v-btn variant="text" to="/">Trouver un gardien</v-btn>
       <v-btn variant="text" :to="`/owner/dashboard/${userStore.userId}`">Mes animaux</v-btn>
     </template>
 
-    <template v-else-if="userStore.userRole === 'Gardien' || userStore.userRole === 'sitter'">
+    <template v-else-if="userStore.userRole === 'Gardien'">
       <v-btn variant="text" to="/sitter/bookings">Mes demandes</v-btn>
       <v-btn variant="text" to="/sitter/profile">Mon profil</v-btn>
     </template>

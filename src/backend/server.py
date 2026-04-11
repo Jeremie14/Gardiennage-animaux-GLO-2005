@@ -45,7 +45,7 @@ def user_login():
         'num': user[4],
         'adress': user[5],
         'date': str(user[6]),
-        'role': user[9]
+        'role': user[8]
     }), 200
 
 
@@ -62,7 +62,7 @@ def get_user(id_utilisateur):
         'num': user[4],
         'adress': user[5],
         'date': str(user[6]),
-        'role': user[9]
+        'role': user[8]
     })
 
 
@@ -111,7 +111,7 @@ def get_animaux(id_proprietaire):
     result = [
         {'idAnimal': a[0], 'name': a[1], 'species': a[2], 'race': a[3],
          'age': a[4], 'weight': a[5], 'idOwner': a[6],
-         'sexe': a[7], 'temper': a[8], 'specialNeeds': a[9]}
+         'sexe': a[7], 'temper': a[8], 'specialNeeds': a[9], 'picture': a[10]}
         for a in animaux
     ]
     return jsonify(result)
@@ -122,6 +122,11 @@ def delete_animal_route(id_animal):
     delete_animal(id_animal)
     return jsonify({'status': 'deleted'})
 
+@app.route('/animal/<int:id_animal>', methods=['PUT'])
+def update_animal_image(id_animal):
+    data = request.get_json()
+    change_animal_picture(id_animal, data['picture'])
+    return jsonify({'status': 'updated'}), 200
 
 @app.route('/gardien', methods=['POST'])
 def create_gardien():
@@ -142,8 +147,8 @@ def list_gardiens():
     gardiens = get_all_gardiens()
     result = [
         {'id': g[0], 'experience': g[1], 'priceHour': g[2],
-         'description': g[3], 'priceDay': g[4], 'zoneService': g[5],
-         'latName': g[8], 'name': g[9], 'email': g[10], 'adress': g[11]}
+         'description': g[3], 'zoneService': g[4], 'verifId': g[5],
+         'latName': g[6], 'name': g[7], 'email': g[8], 'adress': g[9], "photo": g[10]}
         for g in gardiens
     ]
     return jsonify(result)
@@ -155,8 +160,8 @@ def get_gardien(id_utilisateur):
     if g is None:
         return jsonify({'error': 'Introuvable'}), 404
     return jsonify({'id': g[0], 'experience': g[1], 'priceHour': g[2],
-         'description': g[3], 'priceDay': g[4], 'zoneService': g[5],
-         'latName': g[8], 'name': g[9], 'email': g[10], 'adress': g[11]})
+         'description': g[3], 'zoneService': g[4], 'verifId': g[5],
+         'latName': g[6], 'name': g[7], 'email': g[8], 'adress': g[9], "photo": g[10]})
 
 
 @app.route('/gardien/<int:id_utilisateur>', methods=['PUT'])

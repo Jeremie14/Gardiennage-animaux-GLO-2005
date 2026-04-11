@@ -14,8 +14,8 @@ cursor = connection.cursor()
 
 def insert_utilisateur(nom, prenom, email, num, adresse, mot_de_passe, role='Proprietaire'):
     request = (
-        f'INSERT INTO Utilisateur(nom, prenom, email, numTelephone, adresse, dateInscription, motDePasse, statutCompte, role) '
-        f'VALUES ("{nom}", "{prenom}", "{email}", "{num}", "{adresse}", CURDATE(), "{mot_de_passe}", "Actif", "{role}");'
+        f'INSERT INTO Utilisateur(nom, prenom, email, numTelephone, adresse, dateInscription, motDePasse, role) '
+        f'VALUES ("{nom}", "{prenom}", "{email}", "{num}", "{adresse}", CURDATE(), "{mot_de_passe}", "{role}");'
     )
     cursor.execute(request)
 
@@ -73,13 +73,15 @@ def get_animal_by_id(id_animal):
 def delete_animal(id_animal):
     cursor.execute(f'DELETE FROM Animal WHERE idAnimal={id_animal};')
 
+def change_animal_picture(id_animal, picture):
+    cursor.execute(f'UPDATE Animal SET image="{picture}" WHERE idAnimal={id_animal};')
 
 # ─── GardienAnimaux ──────────────────────────────────────────────────────────
 
 def insert_gardien(id_utilisateur, experience, tarif_horaire, description,
                    tarif_journalier=None, zone_service=None):
     request = (
-        f'INSERT INTO GardienAnimaux(idUtilisateur, experience, tarifHoraire, description, tariffJournalier, zoneService, verificationIdentite, actif) '
+        f'INSERT INTO GardienAnimaux(idGardien, experience, tarifHoraire, description, zoneService, verificationIdentite) '
         f'VALUES ({id_utilisateur}, {experience}, {tarif_horaire}, "{description}", '
         f'{"NULL" if tarif_journalier is None else tarif_journalier}, '
         #f'{"NULL" if zone_service is None else f\'"{zone_service}"\''}, '
@@ -91,8 +93,8 @@ def insert_gardien(id_utilisateur, experience, tarif_horaire, description,
 def get_gardien_by_id(id_utilisateur):
     cursor.execute(f'SELECT G.*, U.nom, U.prenom, U.email, U.adresse, U.photoDeProfil  '
                    f'FROM GardienAnimaux G '
-                   f'JOIN Utilisateur U ON G.idUtilisateur = U.idUtilisateur '
-                   f'WHERE G.idUtilisateur={id_utilisateur};')
+                   f'JOIN Utilisateur U ON G.idGardien = U.idUtilisateur '
+                   f'WHERE G.idGardien={id_utilisateur};')
 
     return cursor.fetchone()
 
@@ -101,7 +103,7 @@ def get_all_gardiens():
     cursor.execute(
         f'SELECT G.*, U.nom, U.prenom, U.email, U.adresse, U.photoDeProfil '
         f'FROM GardienAnimaux G '
-        f'JOIN Utilisateur U ON G.idUtilisateur = U.idUtilisateur ;'
+        f'JOIN Utilisateur U ON G.idGardien = U.idUtilisateur ;'
     )
     return cursor.fetchall()
 

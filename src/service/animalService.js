@@ -18,5 +18,10 @@ export default {
   async deleteAnimal(animalId) {
     const response = await axios.delete(`${API_URL}/${animalId}`)
     return response.data
+  },
+
+  async updateAnimalPic(animalId, picture){
+    const response = await axios.put(`${API_URL}/${animalId}`, {picture})
+    return response.data
   }
 }

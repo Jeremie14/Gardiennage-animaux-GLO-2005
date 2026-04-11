@@ -1,7 +1,7 @@
 <template>
   <v-card border flat color="grey-lighten-2" class="rounded-xl overflow-hidden h-100 d-flex flex-column">
     <v-img
-      :src="sitter.img || 'https://i.pravatar.cc/150?u=' + sitter.id"
+      :src="sitter.photo || 'https://i.pravatar.cc/150?u=' + sitter.id"
       height="200"
       cover
     ></v-img>
