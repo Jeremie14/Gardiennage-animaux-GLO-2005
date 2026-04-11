@@ -6,6 +6,7 @@ export const useAnimalStore = defineStore('animal', {
     animals: [],
     loading: false,
     error: null,
+    animalById: null
   }),
 
   getters: {
@@ -26,19 +27,20 @@ export const useAnimalStore = defineStore('animal', {
       }
     },
 
+
     async addAnimal(animalData) {
       this.error = null
       try {
         await animalService.createAnimal(
-          animalData.nom,
-          animalData.espece,
+          animalData.name,
+          animalData.species,
           animalData.race,
           animalData.age,
-          animalData.poids,
+          animalData.weight,
           animalData.idProprietaire,
           animalData.sexe,
-          animalData.temperament,
-          animalData.besoinsSpeciaux
+          animalData.temper,
+          animalData.specialNeeds
         )
         await this.fetchAnimals(animalData.idProprietaire)
       } catch (err) {

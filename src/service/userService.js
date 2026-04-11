@@ -26,6 +26,13 @@ export default {
     return response.data
   },
 
+  async updateUserPic(userId, picture) {
+    const response = await axios.put(`${API_URL}/${userId}/pic`, {
+      picture
+    })
+    return response.data
+  },
+
   async deleteUser(userId) {
     const response = await axios.delete(`${API_URL}/${userId}`)
     return response.data

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import userService from '@/service/userService'
+import animalService from "@/service/animalService.js";
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -52,7 +53,35 @@ export const useUserStore = defineStore('user', {
       }
     },
 
+     async updateUserPic(userId, picture) {
+      this.error = null
+      try {
+        await userService.updateUserPic(userId, picture)
 
+        this.user.picture = picture
+        console.log(this.user.picture)
+      } catch (err) {
+        this.error = "Erreur lors de la mise à jour de la photo."
+        console.error(err)
+        throw err
+      }
+    },
+    async getUser(id) {
+      this.loading = true
+      this.error = null
+      try {
+        const userData = await userService.getUserById(id)
+        this.user = userData
+        localStorage.setItem('user', JSON.stringify(userData))
+        return userData
+      } catch (err) {
+        this.error = "Erreur lors de la récupération de l'utilisateur."
+        console.error(err)
+        throw err
+      } finally {
+        this.loading = false
+      }
+    },
     logout() {
       this.user = null
       localStorage.removeItem('user')

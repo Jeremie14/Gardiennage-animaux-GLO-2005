@@ -20,8 +20,11 @@
 
       <div class="flex-grow-1">
         <h3 class="text-h6 font-weight-bold text-white">{{ animal.name }}</h3>
-        <p class="text-subtitle-2 text-neutral-400">
+        <p class="text-subtitle-2 text-neutral-400 mb-0">
           {{ animal.race }} • {{ animal.age }} ans
+        </p>
+        <p class="text-caption text-neutral-400">
+          Poids: {{ animal.weight }} kg
         </p>
       </div>
 
@@ -40,13 +43,18 @@
       <v-chip variant="flat" color="indigo-lighten-5" size="small" class="font-weight-medium rounded-lg">
         {{ animal.species }}
       </v-chip>
+
       <v-chip v-if="animal.sexe" variant="flat" color="indigo-lighten-5" size="small" class="font-weight-medium rounded-lg">
         {{ animal.sexe }}
       </v-chip>
-      <v-chip v-if="animal.temperament" variant="flat" color="amber-lighten-5" size="small" class="font-weight-medium rounded-lg">
+
+      <v-chip v-if="animal.temper" variant="flat" color="amber-lighten-5" size="small" class="font-weight-medium rounded-lg">
+        <v-icon start size="14">mdi-emoticon-happy-outline</v-icon>
         {{ animal.temper }}
       </v-chip>
-      <v-chip v-if="animal.besoinsSpeciaux" variant="flat" color="red-lighten-5" size="small" class="font-weight-medium rounded-lg">
+
+      <v-chip v-if="animal.specialNeeds" variant="flat" color="red-lighten-5" size="small" class="font-weight-medium rounded-lg">
+        <v-icon start size="14">mdi-alert-circle-outline</v-icon>
         {{ animal.specialNeeds }}
       </v-chip>
     </div>

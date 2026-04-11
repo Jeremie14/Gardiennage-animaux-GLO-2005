@@ -45,7 +45,8 @@ def user_login():
         'num': user[4],
         'adress': user[5],
         'date': str(user[6]),
-        'role': user[8]
+        'role': user[8],
+        'picture': user[9]
     }), 200
 
 
@@ -62,7 +63,8 @@ def get_user(id_utilisateur):
         'num': user[4],
         'adress': user[5],
         'date': str(user[6]),
-        'role': user[8]
+        'role': user[8],
+        'picture': user[9]
     })
 
 
@@ -79,6 +81,15 @@ def update_user(id_utilisateur):
     )
     return jsonify({'status': 'updated'})
 
+@app.route('/user/<int:id_utilisateur>/pic', methods=['PUT'])
+def update_user_pic(id_utilisateur):
+    data = request.get_json()
+    update_utilisateur_pic(
+        id_utilisateur,
+        data['picture']
+    )
+    return jsonify({'status': 'updated'})
+
 
 @app.route('/user/<int:id_utilisateur>', methods=['DELETE'])
 def delete_user(id_utilisateur):
@@ -88,21 +99,22 @@ def delete_user(id_utilisateur):
 
 
 
-# @app.route('/animal', methods=['POST'])
-# def create_animal():
-#     data = request.get_json()
-#     insert_animal(
-#         data['nom'],
-#         data['espece'],
-#         data['race'],
-#         data['age'],
-#         data['poids'],
-#         data['idProprietaire'],
-#         data.get('sexe'),
-#         data.get('temperament'),
-#         data.get('besoinsSpeciaux')
-#     )
-#     return jsonify({'status': 'created'}), 201
+@app.route('/animal', methods=['POST'])
+def create_animal():
+    data = request.get_json()
+    print(data)
+    insert_animal(
+        data['name'],
+        data['species'],
+        data['race'],
+        data['age'],
+        data['weight'],
+        data['idProprietaire'],
+        data.get('sexe'),
+        data.get('temper'),
+        data.get('specialNeeds')
+    )
+    return jsonify({'status': 'created'}), 201
 
 
 @app.route('/animal/proprietaire/<int:id_proprietaire>', methods=['GET'])
@@ -116,6 +128,12 @@ def get_animaux(id_proprietaire):
     ]
     return jsonify(result)
 
+@app.route('/animal/<int:id_animal>', methods=['GET'])
+def get_animal(id_animal):
+    a = get_animal_by_id(id_animal)
+    return jsonify({'idAnimal': a[0], 'name': a[1], 'species': a[2], 'race': a[3],
+         'age': a[4], 'weight': a[5], 'idOwner': a[6],
+         'sexe': a[7], 'temper': a[8], 'specialNeeds': a[9], 'picture': a[10]})
 
 @app.route('/animal/<int:id_animal>', methods=['DELETE'])
 def delete_animal_route(id_animal):
@@ -311,7 +329,55 @@ def update_reservation_statut(id_reservation):
     update_statut_reservation(id_reservation, data['statut'])
     return jsonify({'status': 'updated'})
 
+@app.route('/reservation/<int:id_utilisateur>/confirmee', methods=['GET'])
+def get_confirmee_reservation(id_utilisateur):
+    rows = get_confirmed_reservations_by_user_id(id_utilisateur)
 
+    if not rows:
+        return jsonify({'error': 'Aucune réservation confirmée trouvée'}), 404
+
+    reservations = []
+    for r in rows:
+        reservations.append({
+            'idReservation':    r[0],
+            'idDemande':        r[1],
+            'dateConfirmation': str(r[2]),
+            'Totalprice':       r[4],
+            'idGardien':        r[7],
+            'idAnimal':         r[8],
+            'idService':        r[9],
+            'dateDebut':        str(r[10]),
+            'dateFin':          str(r[11]),
+            'message':          r[12],
+            'dateCreation':     str(r[13])
+        })
+
+    return jsonify(reservations), 200
+
+@app.route('/reservation/<int:id_utilisateur>/passees', methods=['GET'])
+def get_passees_reservation(id_utilisateur):
+    rows = get_past_reservations_by_user_id(id_utilisateur)
+
+    if not rows:
+        return jsonify([]), 200
+
+    reservations = []
+    for r in rows:
+        reservations.append({
+            'idReservation':    r[0],
+            'idDemande':        r[1],
+            'dateConfirmation': str(r[2]),
+            'Totalprice':       r[4],
+            'idGardien':        r[7],
+            'idAnimal':         r[8],
+            'idService':        r[9],
+            'dateDebut':        str(r[10]),
+            'dateFin':          str(r[11]),
+            'message':          r[12],
+            'dateCreation':     str(r[13])
+        })
+
+    return jsonify(reservations), 200
 @app.route('/paiement', methods=['POST'])
 def create_paiement():
     data = request.get_json()

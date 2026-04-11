@@ -1133,3 +1133,12 @@ ON U.idUtilisateur = A.idProprietaire;
 SELECT G.*, U.nom, U.prenom, U.email, U.adresse, U.photoDeProfil
         FROM GardienAnimaux G
         JOIN Utilisateur U ON G.idGardien = U.idUtilisateur ;
+
+ALTER TABLE Animal MODIFY photo LONGTEXT;
+ALTER TABLE Utilisateur MODIFY photoDeProfil LONGTEXT;
+
+SELECT *
+FROM Reservation R
+JOIN Demandereservation D ON D.idDemande = R.idDemande
+WHERE (D.idProprietaire = 3 OR D.idGardien = 3)
+AND R.statutReservation = "CONFIRMEE";

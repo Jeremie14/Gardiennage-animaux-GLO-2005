@@ -15,8 +15,19 @@ export default {
     return response.data
   },
 
+  async getConfirmedReservationsByUser(idUtilisateur) {
+  const response = await axios.get(`${API_URL}/${idUtilisateur}/confirmee`)
+  return response.data
+},
+
+  async getPastReservationsByUser(idUtilisateur) {
+  const response = await axios.get(`${API_URL}/${idUtilisateur}/passees`)
+  return response.data
+},
+
   async updateReservationStatus(reservationId, statut) {
     const response = await axios.put(`${API_URL}/${reservationId}/statut`, { statut })
     return response.data
   }
+
 }

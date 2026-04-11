@@ -4,22 +4,18 @@
 
       <header class="d-flex align-center justify-space-between mb-10">
         <div class="d-flex align-center">
-          <v-avatar color="primary" size="64" class="mr-4 text-h5 font-weight-bold">
-            {{ userInitials }}
+          <v-avatar color="primary" size="64" class="mr-4 text-h5 font-weight-bold cursor-pointer" @click="triggerAvatarUpload">
+            <v-img v-if="userStore.user.picture" :src="userStore.user.picture" cover></v-img>
+            <span v-else>{{ userInitials }}</span>
           </v-avatar>
+          <input ref="avatarInput" type="file" accept="image/*" class="d-none" @change="handleAvatarUpload" />
           <div>
-            <h1 class="text-h4 font-weight-black text-grey-darken-4">Bonjour, {{ userStore.user?.name }}</h1>
+            <h1 class="text-h4 font-weight-black text-grey-darken-4">Bonjour, {{ userStore.user?.lastName }}</h1>
             <p class="text-subtitle-1 text-grey-darken-1">
               {{ new Date().toLocaleDateString('fr-CA', { weekday: 'long', month: 'long', day: 'numeric' }) }}
             </p>
           </div>
         </div>
-
-        <v-btn icon variant="outlined" color="grey-lighten-1" class="rounded-lg bg-white">
-          <v-badge dot color="error">
-            <v-icon icon="mdi-bell-outline" color="grey-darken-2"></v-icon>
-          </v-badge>
-        </v-btn>
       </header>
 
       <v-row class="mb-12">
@@ -34,24 +30,16 @@
           <h2 class="section-title mb-0">Mes animaux</h2>
           <v-divider class="ml-4"></v-divider>
         </div>
-
         <v-progress-linear v-if="animalStore.loading" indeterminate color="primary" class="mb-4"></v-progress-linear>
-
-        <v-alert v-if="animalStore.error" type="error" variant="tonal" class="mb-4">
-          {{ animalStore.error }}
-        </v-alert>
-
+        <v-alert v-if="animalStore.error" type="error" variant="tonal" class="mb-4">{{ animalStore.error }}</v-alert>
         <v-row>
           <v-col v-for="pet in animalStore.animals" :key="pet.idAnimal" cols="12" sm="6" md="4">
             <AnimalCard :animal="pet" @delete="handleDeleteAnimal(pet.idAnimal)" />
           </v-col>
-
           <v-col cols="12" sm="6" md="4">
-            <v-card
-              flat border
+            <v-card flat border
               class="add-pet-card rounded-xl d-flex flex-column align-center justify-center cursor-pointer bg-white"
-              @click="openAddDialog"
-            >
+              @click="openAddDialog">
               <v-icon icon="mdi-plus" size="32" color="indigo-lighten-2"></v-icon>
               <span class="text-indigo-lighten-1 font-weight-bold mt-2">Ajouter un animal</span>
             </v-card>
@@ -60,28 +48,48 @@
       </section>
 
       <section>
-        <h2 class="section-title">Reservation a venir</h2>
-        <v-card border flat class="rounded-xl pa-6 bg-white">
+        <div class="d-flex align-center mb-6">
+          <h2 class="section-title mb-0">Réservations à venir</h2>
+          <v-divider class="ml-4"></v-divider>
+        </div>
+        <v-progress-linear v-if="reservationStore.loading" indeterminate color="primary" class="mb-4"></v-progress-linear>
+        <v-alert v-if="reservationStore.error" type="error" variant="tonal" class="mb-4">{{ reservationStore.error }}</v-alert>
+        <v-alert v-if="!reservationStore.loading && reservationStore.confirmedReservation.length === 0" type="info" variant="tonal">
+          Aucune réservation confirmée pour le moment.
+        </v-alert>
+
+        <v-card
+          v-for="reservation in reservationStore.confirmedReservation"
+          :key="reservation.idReservation"
+          border flat class="rounded-xl pa-6 bg-white mb-4"
+        >
           <div class="d-flex align-center">
             <v-avatar color="indigo-lighten-5" size="50" class="mr-4">
               <v-icon icon="mdi-calendar-check" color="primary"></v-icon>
             </v-avatar>
             <div>
-              <p class="font-weight-bold mb-0">Prochaine garde avec Maya Kim</p>
-              <p class="text-caption text-grey">April 12 - April 15</p>
+              <p class="font-weight-bold mb-0">Réservation #{{ reservation.idReservation }}</p>
+              <p class="text-caption text-grey">
+                {{ new Date(reservation.dateDebut).toLocaleDateString('fr-CA') }}
+                –
+                {{ new Date(reservation.dateFin).toLocaleDateString('fr-CA') }}
+              </p>
             </div>
             <v-spacer></v-spacer>
-            <v-btn variant="tonal" color="primary" class="rounded-lg">Voir les details</v-btn>
+            <v-chip color="green" variant="tonal" class="mr-4">{{ reservation.Totalprice }} $</v-chip>
+            <v-btn variant="tonal" color="primary" class="rounded-lg" @click="openDetailDialog(reservation)">
+              Voir les détails
+            </v-btn>
           </div>
         </v-card>
       </section>
 
     </v-container>
 
+    <!-- ─── Dialog Ajouter Animal ─────────────────────────────────────── -->
     <v-dialog v-model="addDialog" max-width="500">
       <v-card class="pa-6 rounded-xl">
         <h3 class="text-h6 font-weight-black mb-4">Ajouter un animal</h3>
-
         <v-text-field v-model="newAnimal.name" label="Nom" variant="outlined" density="comfortable" class="mb-2"></v-text-field>
         <v-text-field v-model="newAnimal.species" label="Espèce" variant="outlined" density="comfortable" class="mb-2"></v-text-field>
         <v-text-field v-model="newAnimal.race" label="Race" variant="outlined" density="comfortable" class="mb-2"></v-text-field>
@@ -90,11 +98,118 @@
         <v-select v-model="newAnimal.sexe" label="Sexe" :items="['Mâle', 'Femelle']" variant="outlined" density="comfortable" class="mb-2"></v-select>
         <v-text-field v-model="newAnimal.temper" label="Tempérament" variant="outlined" density="comfortable" class="mb-2"></v-text-field>
         <v-text-field v-model="newAnimal.sepcialNeeds" label="Besoins spéciaux" variant="outlined" density="comfortable" class="mb-4"></v-text-field>
-
         <div class="d-flex justify-end ga-2">
           <v-btn variant="text" @click="addDialog = false">Annuler</v-btn>
           <v-btn color="primary" :loading="animalStore.loading" @click="handleAddAnimal">Ajouter</v-btn>
         </div>
+      </v-card>
+    </v-dialog>
+
+    <!-- ─── Dialog Détails Réservation ────────────────────────────────── -->
+    <v-dialog v-model="detailDialog" max-width="620" scrollable>
+      <v-card class="rounded-xl overflow-hidden" v-if="selectedReservation">
+
+        <!-- Header -->
+        <div class="detail-header pa-6 d-flex align-center justify-space-between">
+          <div>
+            <p class="text-caption text-indigo-lighten-3 font-weight-bold mb-1">RÉSERVATION CONFIRMÉE</p>
+            <h3 class="text-h5 font-weight-black text-white">#{{ selectedReservation.idReservation }}</h3>
+          </div>
+          <v-chip color="white" variant="tonal" size="large" class="font-weight-bold text-indigo-darken-2">
+            {{ selectedReservation.Totalprice }} $
+          </v-chip>
+        </div>
+
+        <v-card-text class="pa-6">
+
+          <!-- Dates -->
+          <div class="detail-section mb-5">
+            <p class="detail-section-title">
+              <v-icon icon="mdi-calendar-range" size="16" class="mr-1"></v-icon>
+              Période de garde
+            </p>
+            <v-row>
+              <v-col cols="6">
+                <div class="detail-box">
+                  <p class="detail-box-label">Début</p>
+                  <p class="detail-box-value">{{ new Date(selectedReservation.dateDebut).toLocaleDateString('fr-CA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) }}</p>
+                </div>
+              </v-col>
+              <v-col cols="6">
+                <div class="detail-box">
+                  <p class="detail-box-label">Fin</p>
+                  <p class="detail-box-value">{{ new Date(selectedReservation.dateFin).toLocaleDateString('fr-CA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) }}</p>
+                </div>
+              </v-col>
+            </v-row>
+          </div>
+
+          <v-divider class="mb-5"></v-divider>
+
+          <!-- Animal -->
+          <div class="detail-section mb-5">
+            <p class="detail-section-title">
+              <v-icon icon="mdi-paw" size="16" class="mr-1"></v-icon>
+              Animal
+            </p>
+            <div v-if="detailAnimal" class="detail-box d-flex align-center">
+              <v-avatar color="indigo-lighten-5" size="48" class="mr-4">
+                <v-icon icon="mdi-dog" color="primary"></v-icon>
+              </v-avatar>
+              <div>
+                <p class="detail-box-value mb-0">{{ detailAnimal.name }}</p>
+                <p class="detail-box-label mb-0">{{ detailAnimal.species }} · {{ detailAnimal.race }} · {{ detailAnimal.age }} ans · {{ detailAnimal.sexe }}</p>
+                <p class="detail-box-label mb-0" v-if="detailAnimal.temper">Tempérament : {{ detailAnimal.temper }}</p>
+                <p class="detail-box-label mb-0" v-if="detailAnimal.specialNeeds">Besoins spéciaux : {{ detailAnimal.specialNeeds }}</p>
+              </div>
+            </div>
+            <v-skeleton-loader v-else type="list-item-avatar"></v-skeleton-loader>
+          </div>
+
+          <v-divider class="mb-5"></v-divider>
+
+          <div class="detail-section mb-5">
+            <p class="detail-section-title">
+              <v-icon icon="mdi-account-heart" size="16" class="mr-1"></v-icon>
+              Gardien
+            </p>
+            <div v-if="detailSitter" class="detail-box d-flex align-center">
+              <v-avatar color="green-lighten-5" size="48" class="mr-4">
+                <v-icon icon="mdi-account" color="green-darken-2"></v-icon>
+              </v-avatar>
+              <div>
+                <p class="detail-box-value mb-0">{{ detailSitter.name }} {{ detailSitter.lastName }}</p>
+                <p class="detail-box-label mb-0">{{ detailSitter.email }}</p>
+                <p class="detail-box-label mb-0" v-if="detailSitter.adress">{{ detailSitter.adress }}</p>
+                <p class="detail-box-label mb-0" v-if="detailSitter.experience">{{ detailSitter.experience }} ans d'expérience</p>
+              </div>
+            </div>
+            <v-skeleton-loader v-else type="list-item-avatar"></v-skeleton-loader>
+          </div>
+
+          <v-divider class="mb-5"></v-divider>
+
+          <div class="detail-section mb-2" v-if="selectedReservation.message">
+            <p class="detail-section-title">
+              <v-icon icon="mdi-message-text" size="16" class="mr-1"></v-icon>
+              Message
+            </p>
+            <div class="detail-box">
+              <p class="detail-box-value mb-0">{{ selectedReservation.message }}</p>
+            </div>
+          </div>
+
+          <!-- Dates système -->
+          <p class="text-caption text-grey mt-4">
+            Confirmée le {{ new Date(selectedReservation.dateConfirmation).toLocaleDateString('fr-CA') }}
+            · Créée le {{ new Date(selectedReservation.dateCreation).toLocaleDateString('fr-CA') }}
+          </p>
+
+        </v-card-text>
+
+        <v-card-actions class="pa-6 pt-0 d-flex justify-end">
+          <v-btn variant="text" @click="detailDialog = false">Fermer</v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
 
@@ -106,13 +221,23 @@ import { ref, computed, onMounted } from 'vue'
 import AnimalCard from '@/frontend/components/AnimalCard.vue'
 import { useUserStore } from '@/stores/UserStore.js'
 import { useAnimalStore } from '@/stores/AnimalStore.js'
+import { useReservationStore } from '@/stores/ReservationStore.js'
+import animalService from '@/service/animalService'
+import sitterService from '@/service/sitterService'
 
 const userStore = useUserStore()
 const animalStore = useAnimalStore()
+const reservationStore = useReservationStore()
+
 
 const addDialog = ref(false)
+const detailDialog = ref(false)
+const selectedReservation = ref(null)
+const detailAnimal = ref(null)
+const detailSitter = ref(null)
+
 const newAnimal = ref({
-  name: '', speices: '', race: '', age: null, wweight: null,
+  name: '', species: '', race: '', age: null, weight: null,
   sexe: null, temper: '', specialNeeds: ''
 })
 
@@ -124,15 +249,34 @@ const userInitials = computed(() => {
 
 const stats = computed(() => [
   { label: 'Mes animaux', value: animalStore.animalCount },
-  { label: 'Gardes a venir', value: 1 },
-  { label: 'Reservations passees', value: 7 },
+  { label: 'Gardes à venir', value: reservationStore.confirmedReservation.length },
+  { label: 'Réservations passées', value: reservationStore.pastReservations.length },
 ])
 
 onMounted(() => {
   if (userStore.userId) {
+    userStore.getUser(userStore.userId)
     animalStore.fetchAnimals(userStore.userId)
+    reservationStore.fetchConfirmedReservationsByUser(userStore.userId)
+    reservationStore.fetchPastReservationsByUser(userStore.userId)
   }
 })
+
+const openDetailDialog = async (reservation) => {
+  selectedReservation.value = reservation
+  detailAnimal.value = null
+  detailSitter.value = null
+  detailDialog.value = true
+
+  const [animal, sitter] = await Promise.all([
+    animalService.getAnimalById(reservation.idAnimal),
+    sitterService.getSitterById(reservation.idGardien),
+  ])
+
+  detailAnimal.value = animal
+  detailSitter.value = sitter
+}
+
 
 const openAddDialog = () => {
   newAnimal.value = { name: '', species: '', race: '', age: null, weight: null, sexe: null, temper: '', specialNeeds: '' }
@@ -140,15 +284,30 @@ const openAddDialog = () => {
 }
 
 const handleAddAnimal = async () => {
-  await animalStore.addAnimal({
-    ...newAnimal.value,
-    idProprietaire: userStore.userId,
-  })
+  await animalStore.addAnimal({ ...newAnimal.value, idProprietaire: userStore.userId })
   addDialog.value = false
 }
 
 const handleDeleteAnimal = async (animalId) => {
   await animalStore.removeAnimal(animalId, userStore.userId)
+}
+
+const avatarInput = ref(null)
+
+const triggerAvatarUpload = () => {
+  avatarInput.value.click()
+}
+
+const handleAvatarUpload = (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+
+  const reader = new FileReader()
+  reader.onload = async (e) => {
+    await userStore.updateUserPic (userStore.user.id, e.target.result)
+    localStorage.setItem('picture', e.target.result)
+  }
+  reader.readAsDataURL(file)
 }
 </script>
 
@@ -159,4 +318,11 @@ const handleDeleteAnimal = async (animalId) => {
 .stat-value { font-size: 2.5rem; font-weight: 900; line-height: 1.2; }
 .add-pet-card { border: 2px dashed #E0E0E0 !important; height: 100%; min-height: 160px; transition: all 0.3s ease; }
 .add-pet-card:hover { border-color: #5C6BC0 !important; background-color: #F5F7FF !important; }
+
+/* Detail dialog */
+.detail-header { background: linear-gradient(135deg, #3949AB, #5C6BC0); }
+.detail-section-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #9E9E9E; margin-bottom: 10px; }
+.detail-box { background: #F8F9FF; border-radius: 10px; padding: 14px 16px; }
+.detail-box-label { font-size: 0.78rem; color: #9E9E9E; margin-bottom: 2px; }
+.detail-box-value { font-size: 0.95rem; font-weight: 700; color: #1a1a1a; }
 </style>
