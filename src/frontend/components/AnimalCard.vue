@@ -9,50 +9,70 @@
           class="d-none"
           @change="handleImageUpload"
         />
-        <div class="avatar-circle" :class="{ 'has-image': photoUrl }">
-          <img v-if="photoUrl" :src="photoUrl" alt="Pet photo" class="pet-photo" />
-          <span v-else class="text-h4">{{ animal.species === 'cat' ? '🐈' : '🐕' }}</span>
+        <div class="avatar-circle" :class="{ 'has-image': animal.picture }">
+          <img v-if="animal.picture" :src="animal.picture" alt="Pet photo" class="pet-photo" />
+          <span v-else class="text-h4">{{ speciesEmoji }}</span>
           <div class="avatar-overlay">
             <v-icon color="white" size="18">mdi-camera</v-icon>
           </div>
         </div>
       </div>
 
-      <div>
+      <div class="flex-grow-1">
         <h3 class="text-h6 font-weight-bold text-white">{{ animal.name }}</h3>
         <p class="text-subtitle-2 text-neutral-400">
-          {{ animal.breed }} • {{ animal.age }} ans
+          {{ animal.race }} • {{ animal.age }} ans
         </p>
       </div>
+
+      <v-btn
+        icon
+        variant="text"
+        size="small"
+        color="error"
+        @click.stop="$emit('delete')"
+      >
+        <v-icon size="18">mdi-delete-outline</v-icon>
+      </v-btn>
     </div>
 
     <div class="d-flex flex-wrap ga-2">
-      <v-chip
-        v-for="tag in animal.tags"
-        :key="tag.text"
-        variant="flat"
-        :color="tag.color || 'neutral-700'"
-        size="small"
-        class="font-weight-medium rounded-lg"
-      >
-        {{ tag.text }}
+      <v-chip variant="flat" color="indigo-lighten-5" size="small" class="font-weight-medium rounded-lg">
+        {{ animal.species }}
+      </v-chip>
+      <v-chip v-if="animal.sexe" variant="flat" color="indigo-lighten-5" size="small" class="font-weight-medium rounded-lg">
+        {{ animal.sexe }}
+      </v-chip>
+      <v-chip v-if="animal.temperament" variant="flat" color="amber-lighten-5" size="small" class="font-weight-medium rounded-lg">
+        {{ animal.temper }}
+      </v-chip>
+      <v-chip v-if="animal.besoinsSpeciaux" variant="flat" color="red-lighten-5" size="small" class="font-weight-medium rounded-lg">
+        {{ animal.specialNeeds }}
       </v-chip>
     </div>
   </v-card>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useAnimalStore } from '@/stores/AnimalStore.js'
+const animalStore = useAnimalStore()
 
-defineProps({
+const props = defineProps({
   animal: {
     type: Object,
     required: true
   }
 })
 
+defineEmits(['delete'])
+
 const fileInput = ref(null)
-const photoUrl = ref(null)
+
+const speciesEmoji = computed(() => {
+  const map = { chien: '🐕', chat: '🐈', lapin: '🐇', oiseau: '🐦', furet: '🦡', hamster: '🐹' }
+  return map[props.animal.species?.toLowerCase()] ?? '🐾'
+})
 
 function triggerUpload() {
   fileInput.value?.click()
@@ -62,8 +82,8 @@ function handleImageUpload(event) {
   const file = event.target.files?.[0]
   if (!file) return
   const reader = new FileReader()
-  reader.onload = (e) => {
-    photoUrl.value = e.target.result
+  reader.onload = async (e) => {
+    await animalStore.updateAnimalPic(props.animal.idAnimal, e.target.result)
   }
   reader.readAsDataURL(file)
 }
@@ -95,13 +115,8 @@ function handleImageUpload(event) {
   transition: border-color 0.2s ease;
 }
 
-.avatar-circle:hover {
-  border-color: #666666;
-}
-
-.avatar-circle:hover .avatar-overlay {
-  opacity: 1;
-}
+.avatar-circle:hover { border-color: #666666; }
+.avatar-circle:hover .avatar-overlay { opacity: 1; }
 
 .pet-photo {
   width: 100%;
@@ -109,7 +124,6 @@ function handleImageUpload(event) {
   object-fit: cover;
 }
 
-/* Camera overlay shown on hover */
 .avatar-overlay {
   position: absolute;
   inset: 0;
@@ -122,19 +136,6 @@ function handleImageUpload(event) {
   transition: opacity 0.2s ease;
 }
 
-.avatar-circle:not(.has-image) .avatar-overlay {
-  opacity: 0;
-}
-.avatar-circle:not(.has-image):hover .avatar-overlay {
-  opacity: 1;
-}
-
-:deep(.v-chip.bg-accent-success) {
-  background-color: #213C36 !important;
-  color: #A7F3D0 !important;
-}
-:deep(.v-chip.bg-neutral-700) {
-  background-color: #262626 !important;
-  color: #FBBF24 !important;
-}
+.avatar-circle:not(.has-image) .avatar-overlay { opacity: 0; }
+.avatar-circle:not(.has-image):hover .avatar-overlay { opacity: 1; }
 </style>

@@ -1,13 +1,15 @@
 <script setup>
-import {useUserStore} from "@/stores/UserStore.js";
+import { useUserStore } from "@/stores/UserStore.js";
 import { useRouter } from 'vue-router'
+import { watchEffect } from 'vue'
 
 const userStore = useUserStore()
 const router = useRouter()
 
+
 const handleLogout = () => {
   userStore.logout()
-  router.push('/') // Redirect home after logout
+  router.push('/')
 }
 </script>
 
@@ -23,17 +25,17 @@ const handleLogout = () => {
 
       <v-spacer></v-spacer>
 
-      <div v-if="userStore.isAuthenticated" class="hidden-sm-and-down">
+      <div v-if="userStore.isAuthenticated" class="hidden-sm-and-down d-flex ga-2">
 
-        <template v-if="userStore.role === 'owner'">
-          <v-btn variant="text" class="text-capitalize" to="/">Trouver un gardien</v-btn>
-          <v-btn variant="text" class="text-capitalize" to="/owner/dashboard">Mes animaux</v-btn>
-        </template>
+    <template v-if="userStore.userRole === 'Proprietaire'">
+      <v-btn variant="text" to="/">Trouver un gardien</v-btn>
+      <v-btn variant="text" :to="`/owner/dashboard/${userStore.userId}`">Mes animaux</v-btn>
+    </template>
 
-      <template v-else-if="userStore.role === 'sitter'">
-  <v-btn variant="text" to="/sitter/bookings">Mes demandes</v-btn>
-        <v-btn variant="text" to="/sitter/profile">Mon profil</v-btn>
-</template>
+    <template v-else-if="userStore.userRole === 'Gardien'">
+      <v-btn variant="text" to="/sitter/bookings">Mes demandes</v-btn>
+      <v-btn variant="text" to="/sitter/profile">Mon profil</v-btn>
+    </template>
       </div>
 
       <div class="ml-4 d-flex ga-2">
@@ -57,9 +59,3 @@ const handleLogout = () => {
     </v-container>
   </v-app-bar>
 </template>
-
-<style scoped>
-.brand-link {
-  color: inherit;
-}
-</style>

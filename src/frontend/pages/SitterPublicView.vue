@@ -1,14 +1,20 @@
 <template>
   <v-container class="py-10">
-    <v-row>
+    <v-row v-if="sitterStore.loading" justify="center">
+      <v-progress-circular indeterminate color="primary"></v-progress-circular>
+    </v-row>
+
+    <v-row v-else>
       <v-col cols="12" md="8">
         <v-card flat border class="rounded-xl pa-8">
           <div class="d-flex align-center mb-6">
             <v-avatar size="100" class="mr-6 shadow-lg">
-              <v-img :src="myProfile.img"></v-img>
+              <v-img :src="sitterStore.selectedSitter?.photo || 'https://i.pravatar.cc/150'"></v-img>
             </v-avatar>
             <div>
-              <h1 class="text-h4 font-weight-black">{{ myProfile.name }}</h1>
+              <h1 class="text-h4 font-weight-black">
+                {{ userStore.user?.name }} {{ userStore.user?.lastName }}
+              </h1>
               <v-chip color="amber" variant="flat" size="small">Mode Édition</v-chip>
             </div>
           </div>
@@ -17,7 +23,7 @@
 
           <h3 class="text-h6 font-weight-bold mb-4">Ma Bio</h3>
           <v-textarea
-            v-model="myProfile.description"
+            v-model="editForm.description"
             variant="outlined"
             placeholder="Décrivez votre expérience..."
             auto-grow
@@ -25,15 +31,27 @@
 
           <h3 class="text-h6 font-weight-bold mb-4">Mes Tarifs ($)</h3>
           <v-text-field
-            v-model="myProfile.rate"
+            v-model="editForm.tariffJournalier"
             type="number"
             prefix="$"
             variant="outlined"
+            label="Tarif par nuit"
           ></v-text-field>
 
-          <v-btn color="primary" block size="large" class="rounded-xl mt-4">
+          <v-btn
+            color="primary"
+            block
+            size="large"
+            class="rounded-xl mt-4"
+            :loading="sitterStore.loading"
+            @click="handleSave"
+          >
             Enregistrer les modifications
           </v-btn>
+
+          <v-alert v-if="sitterStore.error" type="error" class="mt-4" variant="tonal">
+            {{ sitterStore.error }}
+          </v-alert>
         </v-card>
       </v-col>
 
@@ -56,15 +74,44 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, reactive } from 'vue'
+import {useUserStore} from "@/stores/UserStore.js";
+import {useSitterStore} from "@/stores/PetSitterStore.js";
 
-// This represents the "Logged In" sitter data
-const myProfile = ref({
-  name: 'Sarah J. (Moi)',
-  rate: 45,
-  img: 'https://i.pravatar.cc/150?u=1',
-  description: "Ceci est ma bio de test. Je m'occupe de vos animaux avec passion !",
-  services: ['Promenade', 'Garde à domicile']
+const userStore = useUserStore()
+const sitterStore = useSitterStore()
+
+
+const editForm = reactive({
+  description: '',
+  tariffJournalier: 0,
+  experience: 0,
+  zoneService: ''
 })
-</script>
 
+onMounted(async () => {
+  const userId = userStore.userId
+  if (userId) {
+    await sitterStore.fetchSitterById(userId)
+
+    // Une fois chargé, on remplit le formulaire avec les données de l'API
+    if (sitterStore.selectedSitter) {
+      editForm.description = sitterStore.selectedSitter.description || ''
+      editForm.tariffJournalier = sitterStore.selectedSitter.tariffJournalier || 0
+      editForm.experience = sitterStore.selectedSitter.experience || 0
+      editForm.zoneService = sitterStore.selectedSitter.zoneService || ''
+    }
+  }
+})
+
+const handleSave = async () => {
+  try {
+    await sitterStore.updateSitterProfile(userStore.userId, {
+      ...editForm
+    })
+    alert("Profil mis à jour avec succès !")
+  } catch (error) {
+    console.error("Erreur lors de la sauvegarde", error)
+  }
+}
+</script>

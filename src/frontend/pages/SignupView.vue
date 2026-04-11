@@ -27,15 +27,25 @@
                 <h2 class="text-h4 font-weight-black">Creer un compte</h2>
               </div>
 
-              <v-text-field
-                v-model="fullName"
-                label="Nom complet"
-                variant="outlined"
-                color="primary"
-                density="comfortable"
-                prepend-inner-icon="mdi-account"
-                @update:model-value="clearFormError"
-              ></v-text-field>
+             <v-text-field
+              v-model="firstName"
+              label="Prénom"
+              variant="outlined"
+              color="primary"
+              density="comfortable"
+              prepend-inner-icon="mdi-account"
+              @update:model-value="clearFormError"
+            ></v-text-field>
+
+            <v-text-field
+              v-model="lastName"
+              label="Nom"
+              variant="outlined"
+              color="primary"
+              density="comfortable"
+              prepend-inner-icon="mdi-account"
+              @update:model-value="clearFormError"
+            ></v-text-field>
 
               <v-text-field
                 v-model="address"
@@ -175,7 +185,8 @@ const router = useRouter()
 const step = ref(1)
 const selectedRole = ref(null)
 
-const fullName = ref('')
+const firstName = ref('')
+const lastName = ref('')
 const address = ref('')
 const phone = ref('')
 const gender = ref(null)
@@ -191,7 +202,7 @@ const clearFormError = () => {
 const goToStepTwo = () => {
   formError.value = ''
 
-  if (!fullName.value || !address.value || !phone.value || !gender.value || !email.value || !password.value || !confirmPassword.value) {
+  if (!firstName.value || !lastName.value || !address.value || !phone.value || !gender.value || !email.value || !password.value || !confirmPassword.value) {
     formError.value = 'Veuillez remplir tous les champs.'
     return
   }
@@ -223,12 +234,29 @@ import { useUserStore} from "@/stores/UserStore.js";
 
 const userStore = useUserStore()
 
-const finishSignUp = () => {
-  if (selectedRole.value) {
-    userStore.login(selectedRole.value)
-    router.push(selectedRole.value === 'owner' ? '/owner/dashboard' : '/sitter/profile')
+const finishSignUp = async () => {
+  if (!selectedRole.value) return
+
+  try {
+    await userStore.signup({
+      name: firstName.value,
+      lastName: lastName.value,
+      email: email.value,
+      password: password.value,
+      cellPhone: phone.value,
+      adress: address.value,
+      role: selectedRole.value === 'owner' ? 'Proprietaire' : 'Gardien'
+    })
+
+    await userStore.login(email.value, password.value)
+
+    await router.push(selectedRole.value === 'owner' ? '/owner/dashboard' : '/sitter/profile')
+
+  } catch (err) {
+    formError.value = "Erreur lors de la création du compte."
   }
 }
+
 </script>
 
 <style scoped>
