@@ -3,7 +3,7 @@ import pymysql.cursors
 DB_CONFIG = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'Aymen12345',
+    'password': 'motdepassesql',
     'db': 'gardiennage_animaux_GLO2005_2026',
     'autocommit': True,
 }
