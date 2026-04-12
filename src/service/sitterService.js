@@ -19,6 +19,8 @@ export default {
     return response.data.data
   },
 
+
+
   async updateSitter(userId, updates) {
     const response = await axios.put(`${API_URL}/${userId}`, updates)
     return response.data.data

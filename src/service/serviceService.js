@@ -19,4 +19,5 @@ export default {
     const response = await axios.delete(`${API_URL}/${serviceId}`)
     return response.data
   }
+
 }

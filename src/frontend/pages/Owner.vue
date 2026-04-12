@@ -16,11 +16,6 @@
             </p>
           </div>
         </div>
-        <v-btn icon variant="outlined" color="grey-lighten-1" class="rounded-lg bg-white">
-          <v-badge dot color="error">
-            <v-icon icon="mdi-bell-outline" color="grey-darken-2"></v-icon>
-          </v-badge>
-        </v-btn>
       </header>
 
       <v-row class="mb-12">
@@ -51,7 +46,47 @@
           </v-col>
         </v-row>
       </section>
+      <section class="mt-12">
+  <div class="d-flex align-center mb-6">
+    <h2 class="section-title mb-0">Mes demandes</h2>
+    <v-divider class="ml-4"></v-divider>
+  </div>
 
+  <v-progress-linear v-if="demandeStore.loading" indeterminate color="primary" class="mb-4"></v-progress-linear>
+  <v-alert v-if="demandeStore.error" type="error" variant="tonal" class="mb-4">{{ demandeStore.error }}</v-alert>
+  <v-alert v-if="!demandeStore.loading && demandeStore.demandes.length === 0" type="info" variant="tonal">
+    Aucune demande pour le moment.
+  </v-alert>
+
+  <v-card
+    v-for="demande in demandeStore.demandes"
+    :key="demande.idDemande"
+    border flat class="rounded-xl pa-6 bg-white mb-4"
+  >
+    <div class="d-flex align-center flex-wrap ga-3">
+      <v-avatar :color="demandeStatutColor(demande.statutDemande) + '-lighten-5'" size="50" class="mr-2">
+        <v-icon :icon="demandeStatutIcon(demande.statutDemande)" :color="demandeStatutColor(demande.statutDemande)"></v-icon>
+      </v-avatar>
+      <div>
+        <p class="font-weight-bold mb-0">Demande #{{ demande.idDemande }}</p>
+        <p class="text-caption text-grey mb-0">
+          {{ new Date(demande.dateDebut).toLocaleDateString('fr-CA') }}
+          –
+          {{ new Date(demande.dateFin).toLocaleDateString('fr-CA') }}
+        </p>
+        <p class="text-caption text-grey mb-0" v-if="demande.message">
+          "{{ demande.message }}"
+        </p>
+      </div>
+      <v-spacer></v-spacer>
+      <v-chip :color="demandeStatutColor(demande.statutDemande)" variant="tonal" size="small">
+        <v-icon :icon="demandeStatutIcon(demande.statutDemande)" start size="14"></v-icon>
+        {{ demande.statutDemande }}
+      </v-chip>
+      <p class="text-caption text-grey mb-0">Créée le {{ new Date(demande.dateCreation).toLocaleDateString('fr-CA') }}</p>
+    </div>
+  </v-card>
+</section>
       <section class="mb-12">
         <div class="d-flex align-center mb-6">
           <h2 class="section-title mb-0">Réservations à venir</h2>
@@ -280,14 +315,22 @@
     <p class="text-caption text-grey mb-4">Réservation #{{ selectedReservationAvis.idReservation }}</p>
 
     <p class="detail-section-title mb-2">Note</p>
-    <v-rating
-      v-model="newAvis.note"
-      color="amber"
-      active-color="amber-darken-2"
-      hover
-      size="36"
-      class="mb-4"
-    ></v-rating>
+
+<div class="d-flex align-center ga-4 mb-4">
+  <v-slider
+    v-model="newAvis.note"
+    :min="0"
+    :max="100"
+    :step="1"
+    color="amber-darken-2"
+    track-color="grey-lighten-2"
+    thumb-label
+    hide-details
+  ></v-slider>
+  <span class="text-h6 font-weight-black text-amber-darken-2" style="min-width: 60px;">
+    {{ newAvis.note }} / 100
+  </span>
+</div>
 
     <v-textarea
       v-model="newAvis.commentaire"
@@ -315,11 +358,14 @@ import { useAnimalStore } from '@/stores/AnimalStore.js'
 import { useReservationStore } from '@/stores/ReservationStore.js'
 import animalService from '@/service/animalService'
 import sitterService from '@/service/sitterService'
-import reviewService from "@/service/avisService.js";
+import { useAvisStore } from '@/stores/avisStore.js'
+import { useDemandeStore } from '@/stores/DemandeStore.js'
 
 const userStore = useUserStore()
 const animalStore = useAnimalStore()
 const reservationStore = useReservationStore()
+const avisStore = useAvisStore()
+const demandeStore = useDemandeStore()
 
 const addDialog = ref(false)
 const detailDialog = ref(false)
@@ -358,6 +404,15 @@ const statutColor = (statut) => {
     default:           return 'grey'
   }
 }
+const demandeStatutColor = (statut) => {
+  switch (statut) {
+    case 'ACCEPTEE':   return 'green'
+    case 'REFUSEE':    return 'red'
+    case 'EN_ATTENTE': return 'orange'
+    case 'ANNULEE':    return 'grey'
+    default:           return 'grey'
+  }
+}
 
 const statutIcon = (statut) => {
   switch (statut) {
@@ -369,12 +424,23 @@ const statutIcon = (statut) => {
   }
 }
 
+const demandeStatutIcon = (statut) => {
+  switch (statut) {
+    case 'ACCEPTEE':   return 'mdi-check-circle'
+    case 'REFUSEE':    return 'mdi-close-circle'
+    case 'EN_ATTENTE': return 'mdi-clock-outline'
+    case 'ANNULEE':    return 'mdi-cancel'
+    default:           return 'mdi-help-circle'
+  }
+}
+
 onMounted(() => {
   if (userStore.userId) {
     userStore.getUser(userStore.userId)
     animalStore.fetchAnimals(userStore.userId)
     reservationStore.fetchConfirmedReservationsByUser(userStore.userId)
     reservationStore.fetchPastReservationsByUser(userStore.userId)
+    demandeStore.fetchDemandesByOwner(userStore.userId)
   }
 })
 
@@ -430,21 +496,18 @@ const openAvisDialog = (reservation) => {
 }
 
 const handleSubmitAvis = async () => {
-  avisLoading.value = true
   try {
-    await avisService.createAvis({
-      note: newAvis.value.note,
-      commentaire: newAvis.value.commentaire,
-      dateAvis: new Date().toISOString().split('T')[0],
-      idProprietaire: userStore.userId,
-      idGardien: selectedReservationAvis.value.idGardien,
-      idReservation: selectedReservationAvis.value.idReservation,
-    })
+    await avisStore.createAvis(
+      newAvis.value.note,
+      newAvis.value.commentaire,
+      new Date().toISOString().split('T')[0],
+      userStore.userId,
+      selectedReservationAvis.value.idGardien,
+      selectedReservationAvis.value.idReservation,
+    )
     avisDialog.value = false
   } catch (e) {
-    console.error('Erreur lors de la soumission de l\'avis', e)
-  } finally {
-    avisLoading.value = false
+    console.error(e)
   }
 }
 </script>

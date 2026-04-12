@@ -12,7 +12,12 @@
           <div class="px-8 pb-8">
             <div class="d-flex align-end justify-space-between hero-avatar-row">
               <v-avatar size="110" class="hero-avatar border-white">
-                <v-img :src="sitterStore.selectedSitter.photo || 'https://i.pravatar.cc/150'"></v-img>
+               <v-img
+                v-if="sitterStore.selectedSitter.photo"
+                :src="sitterStore.selectedSitter.photo"
+                cover
+              ></v-img>
+              <v-icon v-else icon="mdi-account" size="64" color="white"></v-icon>
               </v-avatar>
               <div class="d-flex ga-2 mb-2">
                 <v-chip v-if="sitterStore.selectedSitter.verifId" color="green" variant="tonal" size="small">
@@ -34,19 +39,10 @@
                 <h1 class="text-h4 font-weight-black">
                   {{ sitterStore.selectedSitter.name }} {{ sitterStore.selectedSitter.lastName }}
                 </h1>
-
-                <div class="d-flex align-center mt-2 ga-2">
-                  <v-rating
-                    :model-value="sitterStore.selectedSitter.rating || 5"
-                    color="amber" density="compact" readonly half-increments size="18"
-                  ></v-rating>
-                  <span class="text-caption text-grey">{{ sitterStore.selectedSitter.rating || '5.0' }} / 5</span>
-                </div>
               </div>
             </div>
           </div>
         </v-card>
-
         <v-row>
           <v-col cols="12" md="8">
 
@@ -87,7 +83,48 @@
 
               </v-row>
             </v-card>
+ <v-card flat border class="rounded-xl pa-6 mb-5">
+  <h3 class="section-title mb-5">
+    <v-icon icon="mdi-star-outline" class="mr-2" color="white"></v-icon>
+    Avis
+  </h3>
 
+  <v-progress-linear v-if="avisStore.loading" indeterminate color="amber" class="mb-4"></v-progress-linear>
+
+  <v-alert v-if="!avisStore.loading && avisStore.avis.length === 0" type="info" variant="tonal">
+    Aucun avis pour le moment.
+  </v-alert>
+
+  <div v-for="avis in avisStore.avis" :key="avis.idAvis" class="avis-item mb-4">
+    <div class="d-flex align-center justify-space-between mb-1">
+      <div class="d-flex align-center ga-2">
+       <v-avatar color="indigo-lighten-5" size="32">
+  <v-img v-if="avis.photoProprietaire" :src="avis.photoProprietaire" cover></v-img>
+  <v-icon v-else icon="mdi-account" color="indigo" size="18"></v-icon>
+</v-avatar>
+<span class="text-body-2 font-weight-bold">{{ avis.nomProprietaire }}</span>
+
+      </div>
+      <div class="d-flex align-center ga-2">
+        <v-chip color="amber-darken-2" variant="tonal" size="small">
+          <v-icon icon="mdi-star" start size="12"></v-icon>
+          {{ avis.note }} / 100
+        </v-chip>
+        <span class="text-caption text-grey">{{ new Date(avis.dateAvis).toLocaleDateString('fr-CA') }}</span>
+      </div>
+    </div>
+    <p class="text-body-2 text-grey-darken-1 ml-10 mb-0">{{ avis.commentaire }}</p>
+    <v-divider class="mt-4" v-if="avisStore.avis.indexOf(avis) < avisStore.avis.length - 1"></v-divider>
+  </div>
+
+  <div v-if="avisStore.moyenne !== null" class="moyenne-box d-flex align-center justify-space-between pa-4 rounded-xl mt-4">
+    <span class="text-body-2 font-weight-bold">Note moyenne</span>
+    <v-chip color="amber-darken-2" variant="flat" size="large">
+      <v-icon icon="mdi-star" start size="16"></v-icon>
+      {{ avisStore.moyenne }} / 100
+    </v-chip>
+  </div>
+</v-card>
             <v-card flat border class="rounded-xl pa-6 mb-5" v-if="sitterStore.selectedSitter.zoneService">
               <h3 class="section-title mb-4">
                 <v-icon icon="mdi-map-outline" class="mr-2" color="white"></v-icon>
@@ -164,16 +201,20 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useSitterStore } from '@/stores/PetSitterStore.js'
+import { useAvisStore } from '@/stores/avisStore.js'
 import BookingModal from '@/frontend/components/BookingModal.vue'
 
 const route = useRoute()
 const sitterStore = useSitterStore()
+const avisStore = useAvisStore()
 const isBookingOpen = ref(false)
 
 onMounted(async () => {
   const sitterId = route.params.id
   if (sitterId) {
     await sitterStore.fetchSitterById(sitterId)
+    await avisStore.fetchAvisBySitter(sitterId)
+    await avisStore.fetchMoyenneBySitter(sitterId)
   }
 })
 </script>

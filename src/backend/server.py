@@ -214,7 +214,7 @@ def get_services(id_gardien):
     services = get_services_by_gardien(id_gardien)
     result = [
         {'idService': s[0], 'idGardien': s[1], 'typeService': s[2],
-         'description': s[3], 'tarif': s[4], 'dureeEstimee': s[5]}
+         'description': s[3], 'dureeEstimee': s[4]}
         for s in services
     ]
     return jsonify(result)
@@ -427,12 +427,16 @@ def create_avis():
 @app.route('/avis/gardien/<int:id_gardien>', methods=['GET'])
 def get_avis(id_gardien):
     avis_list = get_avis_by_gardien(id_gardien)
-    result = [
-        {'idAvis': a[0], 'note': a[1], 'commentaire': a[2],
-         'dateAvis': str(a[3]), 'idProprietaire': a[4],
-         'idGardien': a[5], 'idReservation': a[6]}
-        for a in avis_list
-    ]
+    result = []
+    for a in avis_list:
+        user = get_utilisateur_by_id(a[4])
+        result.append({
+            'idAvis': a[0], 'note': a[1], 'commentaire': a[2],
+            'dateAvis': str(a[3]), 'idProprietaire': a[4],
+            'idGardien': a[5], 'idReservation': a[6],
+            'nomProprietaire': f"{user[1]} {user[2]}" if user else 'Anonyme',
+            'photoProprietaire': user[9] if user else None
+        })
     return jsonify(result)
 
 

@@ -20,6 +20,7 @@ export default {
     return response.data
   },
 
+
   async updateBookingRequestStatus(requestId, statut) {
     const response = await axios.put(`${API_URL}/${requestId}/statut`, { statut })
     return response.data
