@@ -30,6 +30,18 @@
 
     <v-divider class="my-4"></v-divider>
 
+    <v-label class="mb-2">Zone de service</v-label>
+    <v-select
+      v-model="selectedZone"
+      :items="['Quebec']"
+      label="Choisir une zone"
+      variant="outlined"
+      density="comfortable"
+      clearable
+      hide-details
+      class="mb-4"
+    ></v-select>
+
     <v-label>Prix maximal</v-label>
     <v-slider
       v-model="maxPrice"
@@ -51,11 +63,13 @@ import { ref } from 'vue'
 
 const emit = defineEmits(['apply-filters'])
 const selectedServices = ref([])
+const selectedZone = ref(null)
 const maxPrice = ref(150)
 
 const applyFilters = () => {
   emit('apply-filters', {
     selectedServices: selectedServices.value,
+    selectedZone: selectedZone.value,
     maxPrice: maxPrice.value
   })
 }

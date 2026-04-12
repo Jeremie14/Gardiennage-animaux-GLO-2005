@@ -3,16 +3,41 @@ import axios from 'axios'
 const API_URL = 'http://127.0.0.1:5000/gardien'
 
 export default {
- async getAllSitters() {
+  async getAllSitters() {
     const response = await axios.get(API_URL)
-    // On essaie de récupérer .data.data (standard API), sinon .data (tableau direct)
-    return response.data.data || response.data
-  },
+    const sitters = response.data.data || response.data
 
-  async getSitterById(userId) {
-    const response = await axios.get(`${API_URL}/${userId}`)
-    return response.data.data || response.data
-  },
+    return sitters.map((sitter) => ({
+      id: sitter.id,
+      name: sitter.name,
+      lastName: sitter.latName,
+      priceHour: sitter.priceHour,
+      description: sitter.description,
+      photo: sitter.photo,
+      rating: 5.0,
+      zoneService: sitter.zoneService,
+      experience: sitter.experience,
+      services: ['Promenade', 'Garde a domicile', 'Visites ponctuelles']
+    }))
+    },
+
+async getSitterById(userId) {
+  const response = await axios.get(`${API_URL}/${userId}`)
+  const sitter = response.data.data || response.data
+
+  return {
+    id: sitter.id,
+    name: sitter.name,
+    lastName: sitter.latName,
+    priceHour: sitter.priceHour,
+    description: sitter.description,
+    photo: sitter.photo,
+    rating: 5.0,
+    zoneService: sitter.zoneService,
+    experience: sitter.experience,
+    services: ['Promenade', 'Garde a domicile', 'Visites ponctuelles']
+  }
+},
 
   async createSitter(sitterData) {
     const response = await axios.post(API_URL, sitterData)

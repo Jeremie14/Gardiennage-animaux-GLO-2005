@@ -1,4 +1,4 @@
-CREATE DATABASE gardiennage_animaux_GLO2005_2026;
+CREATE DATABASE IF NOT EXISTS gardiennage_animaux_GLO2005_2026;
 
 
 SHOW DATABASES;
@@ -6,16 +6,15 @@ SHOW DATABASES;
 USE gardiennage_animaux_GLO2005_2026;
 SHOW TABLES;
 
-DROP TABLE Utilisateur;
-DROP TABLE Animal;
-DROP TABLE Avis;
-DROP TABLE demandeReservation;
-DROP TABLE disponibilite;
-DROP TABLE GardienAnimaux;
-DROP TABLE Paiement;
-DROP TABLE Reservation;
-DROP TABLE Service;
-
+DROP TABLE IF EXISTS Avis;
+DROP TABLE IF EXISTS Paiement;
+DROP TABLE IF EXISTS Reservation;
+DROP TABLE IF EXISTS DemandeReservation;
+DROP TABLE IF EXISTS Disponibilite;
+DROP TABLE IF EXISTS Service;
+DROP TABLE IF EXISTS Animal;
+DROP TABLE IF EXISTS GardienAnimaux;
+DROP TABLE IF EXISTS Utilisateur;
 
 CREATE TABLE Utilisateur (
     idUtilisateur INT PRIMARY KEY AUTO_INCREMENT,
