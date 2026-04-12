@@ -367,6 +367,7 @@ def get_passees_reservation(id_utilisateur):
             'idReservation':    r[0],
             'idDemande':        r[1],
             'dateConfirmation': str(r[2]),
+            'statut': r[3],
             'Totalprice':       r[4],
             'idGardien':        r[7],
             'idAnimal':         r[8],

@@ -16,6 +16,11 @@
             </p>
           </div>
         </div>
+        <v-btn icon variant="outlined" color="grey-lighten-1" class="rounded-lg bg-white">
+          <v-badge dot color="error">
+            <v-icon icon="mdi-bell-outline" color="grey-darken-2"></v-icon>
+          </v-badge>
+        </v-btn>
       </header>
 
       <v-row class="mb-12">
@@ -47,7 +52,7 @@
         </v-row>
       </section>
 
-      <section>
+      <section class="mb-12">
         <div class="d-flex align-center mb-6">
           <h2 class="section-title mb-0">Réservations à venir</h2>
           <v-divider class="ml-4"></v-divider>
@@ -63,22 +68,77 @@
           :key="reservation.idReservation"
           border flat class="rounded-xl pa-6 bg-white mb-4"
         >
-          <div class="d-flex align-center">
-            <v-avatar color="indigo-lighten-5" size="50" class="mr-4">
+          <div class="d-flex align-center flex-wrap ga-3">
+            <v-avatar color="indigo-lighten-5" size="50" class="mr-2">
               <v-icon icon="mdi-calendar-check" color="primary"></v-icon>
             </v-avatar>
             <div>
               <p class="font-weight-bold mb-0">Réservation #{{ reservation.idReservation }}</p>
-              <p class="text-caption text-grey">
+              <p class="text-caption text-grey mb-0">
                 {{ new Date(reservation.dateDebut).toLocaleDateString('fr-CA') }}
                 –
                 {{ new Date(reservation.dateFin).toLocaleDateString('fr-CA') }}
               </p>
             </div>
             <v-spacer></v-spacer>
-            <v-chip color="green" variant="tonal" class="mr-4">{{ reservation.Totalprice }} $</v-chip>
-            <v-btn variant="tonal" color="primary" class="rounded-lg" @click="openDetailDialog(reservation)">
+            <v-chip color="green" variant="tonal" size="small">
+              <v-icon icon="mdi-check-circle" start size="14"></v-icon>
+              CONFIRMÉE
+            </v-chip>
+            <v-chip color="green" variant="tonal" size="small">{{ reservation.Totalprice }} $</v-chip>
+            <v-btn variant="tonal" color="primary" size="small" class="rounded-lg" @click="openDetailDialog(reservation)">
               Voir les détails
+            </v-btn>
+          </div>
+        </v-card>
+      </section>
+
+      <section>
+        <div class="d-flex align-center mb-6">
+          <h2 class="section-title mb-0">Réservations passées</h2>
+          <v-divider class="ml-4"></v-divider>
+        </div>
+        <v-alert v-if="!reservationStore.loading && reservationStore.pastReservations.length === 0" type="info" variant="tonal">
+          Aucune réservation passée pour le moment.
+        </v-alert>
+
+        <v-card
+          v-for="reservation in reservationStore.pastReservations"
+          :key="reservation.idReservation"
+          border flat class="rounded-xl pa-6 bg-white mb-4"
+          style="opacity: 0.8"
+        >
+          <div class="d-flex align-center flex-wrap ga-3">
+            <v-avatar color="grey-lighten-3" size="50" class="mr-2">
+              <v-icon icon="mdi-calendar-clock" color="grey-darken-1"></v-icon>
+            </v-avatar>
+            <div>
+              <p class="font-weight-bold mb-0">Réservation #{{ reservation.idReservation }}</p>
+              <p class="text-caption text-grey mb-0">
+                {{ new Date(reservation.dateDebut).toLocaleDateString('fr-CA') }}
+                –
+                {{ new Date(reservation.dateFin).toLocaleDateString('fr-CA') }}
+              </p>
+            </div>
+            <v-spacer></v-spacer>
+            <v-chip :color="statutColor(reservation.statut)" variant="tonal" size="small">
+              <v-icon :icon="statutIcon(reservation.statut)" start size="14"></v-icon>
+              {{ reservation.statut || 'PASSÉE' }}
+            </v-chip>
+            <v-chip color="grey" variant="tonal" size="small">{{ reservation.Totalprice }} $</v-chip>
+            <v-btn variant="tonal" color="grey-darken-1" size="small" class="rounded-lg" @click="openDetailDialog(reservation)">
+              Voir les détails
+            </v-btn>
+            <v-btn
+              v-if="reservation.statut === 'TERMINEE'"
+              variant="tonal"
+              color="amber-darken-2"
+              size="small"
+              class="rounded-lg"
+              @click="openAvisDialog(reservation)"
+            >
+              <v-icon icon="mdi-star-outline" start size="14"></v-icon>
+              Donner votre avis
             </v-btn>
           </div>
         </v-card>
@@ -86,7 +146,6 @@
 
     </v-container>
 
-    <!-- ─── Dialog Ajouter Animal ─────────────────────────────────────── -->
     <v-dialog v-model="addDialog" max-width="500">
       <v-card class="pa-6 rounded-xl">
         <h3 class="text-h6 font-weight-black mb-4">Ajouter un animal</h3>
@@ -105,14 +164,20 @@
       </v-card>
     </v-dialog>
 
-    <!-- ─── Dialog Détails Réservation ────────────────────────────────── -->
     <v-dialog v-model="detailDialog" max-width="620" scrollable>
       <v-card class="rounded-xl overflow-hidden" v-if="selectedReservation">
 
-        <!-- Header -->
         <div class="detail-header pa-6 d-flex align-center justify-space-between">
           <div>
-            <p class="text-caption text-indigo-lighten-3 font-weight-bold mb-1">RÉSERVATION CONFIRMÉE</p>
+            <v-chip
+              :color="statutColor(selectedReservation.statut)"
+              variant="tonal"
+              size="small"
+              class="mb-2"
+            >
+              <v-icon :icon="statutIcon(selectedReservation.statut)" start size="14"></v-icon>
+              {{ selectedReservation.statut || 'CONFIRMÉE' }}
+            </v-chip>
             <h3 class="text-h5 font-weight-black text-white">#{{ selectedReservation.idReservation }}</h3>
           </div>
           <v-chip color="white" variant="tonal" size="large" class="font-weight-bold text-indigo-darken-2">
@@ -120,9 +185,8 @@
           </v-chip>
         </div>
 
-        <v-card-text class="pa-6">
+        <v-card-text class="pa-6" style="max-height: 70vh; overflow-y: auto;">
 
-          <!-- Dates -->
           <div class="detail-section mb-5">
             <p class="detail-section-title">
               <v-icon icon="mdi-calendar-range" size="16" class="mr-1"></v-icon>
@@ -146,7 +210,6 @@
 
           <v-divider class="mb-5"></v-divider>
 
-          <!-- Animal -->
           <div class="detail-section mb-5">
             <p class="detail-section-title">
               <v-icon icon="mdi-paw" size="16" class="mr-1"></v-icon>
@@ -178,7 +241,7 @@
                 <v-icon icon="mdi-account" color="green-darken-2"></v-icon>
               </v-avatar>
               <div>
-                <p class="detail-box-value mb-0">{{ detailSitter.name }} {{ detailSitter.lastName }}</p>
+                <p class="detail-box-value mb-0">{{ detailSitter.name }} {{ detailSitter.latName }}</p>
                 <p class="detail-box-label mb-0">{{ detailSitter.email }}</p>
                 <p class="detail-box-label mb-0" v-if="detailSitter.adress">{{ detailSitter.adress }}</p>
                 <p class="detail-box-label mb-0" v-if="detailSitter.experience">{{ detailSitter.experience }} ans d'expérience</p>
@@ -199,7 +262,6 @@
             </div>
           </div>
 
-          <!-- Dates système -->
           <p class="text-caption text-grey mt-4">
             Confirmée le {{ new Date(selectedReservation.dateConfirmation).toLocaleDateString('fr-CA') }}
             · Créée le {{ new Date(selectedReservation.dateCreation).toLocaleDateString('fr-CA') }}
@@ -212,7 +274,36 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+  <v-dialog v-model="avisDialog" max-width="480">
+  <v-card class="pa-6 rounded-xl" v-if="selectedReservationAvis">
+    <h3 class="text-h6 font-weight-black mb-1">Donner votre avis</h3>
+    <p class="text-caption text-grey mb-4">Réservation #{{ selectedReservationAvis.idReservation }}</p>
 
+    <p class="detail-section-title mb-2">Note</p>
+    <v-rating
+      v-model="newAvis.note"
+      color="amber"
+      active-color="amber-darken-2"
+      hover
+      size="36"
+      class="mb-4"
+    ></v-rating>
+
+    <v-textarea
+      v-model="newAvis.commentaire"
+      label="Commentaire"
+      variant="outlined"
+      density="comfortable"
+      rows="3"
+      class="mb-4"
+    ></v-textarea>
+
+    <div class="d-flex justify-end ga-2">
+      <v-btn variant="text" @click="avisDialog = false">Annuler</v-btn>
+      <v-btn color="amber-darken-2" :loading="avisLoading" @click="handleSubmitAvis">Envoyer</v-btn>
+    </div>
+  </v-card>
+</v-dialog>
   </v-main>
 </template>
 
@@ -224,17 +315,22 @@ import { useAnimalStore } from '@/stores/AnimalStore.js'
 import { useReservationStore } from '@/stores/ReservationStore.js'
 import animalService from '@/service/animalService'
 import sitterService from '@/service/sitterService'
+import reviewService from "@/service/avisService.js";
 
 const userStore = useUserStore()
 const animalStore = useAnimalStore()
 const reservationStore = useReservationStore()
-
 
 const addDialog = ref(false)
 const detailDialog = ref(false)
 const selectedReservation = ref(null)
 const detailAnimal = ref(null)
 const detailSitter = ref(null)
+const avatarInput = ref(null)
+const avisDialog = ref(false)
+const avisLoading = ref(false)
+const selectedReservationAvis = ref(null)
+const newAvis = ref({ note: 0, commentaire: '' })
 
 const newAnimal = ref({
   name: '', species: '', race: '', age: null, weight: null,
@@ -252,6 +348,26 @@ const stats = computed(() => [
   { label: 'Gardes à venir', value: reservationStore.confirmedReservation.length },
   { label: 'Réservations passées', value: reservationStore.pastReservations.length },
 ])
+
+const statutColor = (statut) => {
+  switch (statut) {
+    case 'CONFIRMEE':  return 'green'
+    case 'ANNULEE':    return 'red'
+    case 'EN_ATTENTE': return 'orange'
+    case 'TERMINEE':   return 'blue'
+    default:           return 'grey'
+  }
+}
+
+const statutIcon = (statut) => {
+  switch (statut) {
+    case 'CONFIRMEE':  return 'mdi-check-circle'
+    case 'ANNULEE':    return 'mdi-close-circle'
+    case 'EN_ATTENTE': return 'mdi-clock-outline'
+    case 'TERMINEE':   return 'mdi-flag-checkered'
+    default:           return 'mdi-calendar-clock'
+  }
+}
 
 onMounted(() => {
   if (userStore.userId) {
@@ -277,7 +393,6 @@ const openDetailDialog = async (reservation) => {
   detailSitter.value = sitter
 }
 
-
 const openAddDialog = () => {
   newAnimal.value = { name: '', species: '', race: '', age: null, weight: null, sexe: null, temper: '', specialNeeds: '' }
   addDialog.value = true
@@ -292,8 +407,6 @@ const handleDeleteAnimal = async (animalId) => {
   await animalStore.removeAnimal(animalId, userStore.userId)
 }
 
-const avatarInput = ref(null)
-
 const triggerAvatarUpload = () => {
   avatarInput.value.click()
 }
@@ -304,10 +417,35 @@ const handleAvatarUpload = (event) => {
 
   const reader = new FileReader()
   reader.onload = async (e) => {
-    await userStore.updateUserPic (userStore.user.id, e.target.result)
+    await userStore.updateUserPic(userStore.user.id, e.target.result)
     localStorage.setItem('picture', e.target.result)
   }
   reader.readAsDataURL(file)
+}
+
+const openAvisDialog = (reservation) => {
+  selectedReservationAvis.value = reservation
+  newAvis.value = { note: 0, commentaire: '' }
+  avisDialog.value = true
+}
+
+const handleSubmitAvis = async () => {
+  avisLoading.value = true
+  try {
+    await avisService.createAvis({
+      note: newAvis.value.note,
+      commentaire: newAvis.value.commentaire,
+      dateAvis: new Date().toISOString().split('T')[0],
+      idProprietaire: userStore.userId,
+      idGardien: selectedReservationAvis.value.idGardien,
+      idReservation: selectedReservationAvis.value.idReservation,
+    })
+    avisDialog.value = false
+  } catch (e) {
+    console.error('Erreur lors de la soumission de l\'avis', e)
+  } finally {
+    avisLoading.value = false
+  }
 }
 </script>
 
@@ -318,8 +456,6 @@ const handleAvatarUpload = (event) => {
 .stat-value { font-size: 2.5rem; font-weight: 900; line-height: 1.2; }
 .add-pet-card { border: 2px dashed #E0E0E0 !important; height: 100%; min-height: 160px; transition: all 0.3s ease; }
 .add-pet-card:hover { border-color: #5C6BC0 !important; background-color: #F5F7FF !important; }
-
-/* Detail dialog */
 .detail-header { background: linear-gradient(135deg, #3949AB, #5C6BC0); }
 .detail-section-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #9E9E9E; margin-bottom: 10px; }
 .detail-box { background: #F8F9FF; border-radius: 10px; padding: 14px 16px; }
