@@ -21,7 +21,7 @@
     </v-card-item>
 
     <v-card-text class="text-body-2 text-grey-darken-1 flex-grow-1">
-      {{ sitter.description|| 'Aucune description disponible.' }}
+      {{ sitter.description || 'Aucune description disponible.' }}
     </v-card-text>
 
     <v-divider></v-divider>

@@ -71,7 +71,7 @@ const openBooking = (sitter) => {
 
 const applyFilters = (filters) => {
   filteredSitters.value = sitterStore.sitters.filter((sitter) => {
-    const sitterPrice = sitter.tariffJournalier || sitter.rate || 0
+    const sitterPrice = sitter.priceHour || sitter.tariffJournalier || sitter.rate || 0
     const matchesPrice = sitterPrice <= filters.maxPrice
 
     const sitterServices = sitter.services || []
@@ -79,7 +79,11 @@ const applyFilters = (filters) => {
       !filters.selectedServices.length ||
       filters.selectedServices.every((s) => sitterServices.includes(s))
 
-    return matchesPrice && matchesServices
+    const matchesZone =
+      !filters.selectedZone ||
+      sitter.zoneService === filters.selectedZone
+
+    return matchesPrice && matchesServices && matchesZone
   })
 }
 </script>
