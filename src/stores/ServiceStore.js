@@ -21,11 +21,11 @@ export const useServiceStore = defineStore('service', {
       }
     },
 
-    async createService(idGardien, typeService, description, tarif, dureeEstimee) {
+    async createService(idGardien, typeService, description, dureeEstimee) {
       this.loading = true
       this.error = null
       try {
-        await serviceService.createService(idGardien, typeService, description, tarif, dureeEstimee)
+        await serviceService.createService(idGardien, typeService, description, dureeEstimee)
         await this.fetchServicesBySitter(idGardien)
       } catch (e) {
         this.error = 'Erreur lors de la création du service'

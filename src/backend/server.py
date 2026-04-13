@@ -201,7 +201,6 @@ def update_gardien_route(id_utilisateur):
         data['experience'],
         data['tarifHoraire'],
         data['description'],
-        data['tariffJournalier'],
         data['zoneService']
     )
     return jsonify({'status': 'updated'})
@@ -214,7 +213,6 @@ def create_service():
         data['idGardien'],
         data['typeService'],
         data['description'],
-        data['tarif'],
         data['dureeEstimee']
     )
     return jsonify({'status': 'created'}), 201

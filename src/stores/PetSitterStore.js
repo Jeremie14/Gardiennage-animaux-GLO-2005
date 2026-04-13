@@ -45,25 +45,19 @@ export const useSitterStore = defineStore('sitter', {
     },
 
 
-    async updateSitterProfile(userId, profileUpdates) {
-      this.loading = true
-      try {
-        const updatedData = await sitterService.updateSitter(
-          userId,
-          profileUpdates.experience,
-          profileUpdates.tarifHoraire,
-          profileUpdates.description,
-          profileUpdates.tariffJournalier,
-          profileUpdates.zoneService
-        )
-        this.selectedSitter = updatedData
-        return true
-      } catch (err) {
-        this.error = "Échec de la mise à jour du profil."
-        throw err
-      } finally {
-        this.loading = false
-      }
-    }
+   async updateSitterProfile(userId, profileUpdates) {
+  this.loading = true
+  try {
+    // On passe directement l'objet updates au service
+    const updatedData = await sitterService.updateSitter(userId, profileUpdates)
+    this.selectedSitter = updatedData
+    return true
+  } catch (err) {
+    this.error = "Échec de la mise à jour du profil."
+    throw err
+  } finally {
+    this.loading = false
+  }
+}
   }
 })

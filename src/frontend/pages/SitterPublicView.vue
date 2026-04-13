@@ -102,7 +102,7 @@
                       :readonly="!isEditMode"
                       suffix="ans"
                       hide-details
-                      class="text-center"
+                      class="text-center input-black"
                     ></v-text-field>
                     <p class="text-caption text-grey mb-0 mt-1">d'expérience</p>
                   </div>
@@ -118,7 +118,7 @@
                       density="compact"
                       suffix="$/h"
                       hide-details
-                      class="text-center"
+                      class="text-center input-black"
                     ></v-text-field>
                     <p class="text-caption text-grey mb-0 mt-1">tarif horaire</p>
                   </div>
@@ -161,11 +161,10 @@
 
               <div v-for="service in serviceStore.services" :key="service.idService" class="service-item d-flex align-center justify-space-between mb-3">
                 <div>
-                  <p class="font-weight-bold mb-0">{{ service.typeService }}</p>
+                  <p class="font-weight-bold text-black mb-0">{{ service.typeService }}</p>
                   <p class="text-caption text-grey mb-0">{{ service.description }} · {{ service.dureeEstimee }}h</p>
                 </div>
                 <div class="d-flex align-center ga-2">
-                  <v-chip color="green" variant="tonal" size="small">{{ service.tarif }} $</v-chip>
                   <v-btn icon size="x-small" variant="text" color="red" @click="handleRemoveService(service.idService)">
                     <v-icon icon="mdi-delete-outline" size="18"></v-icon>
                   </v-btn>
@@ -192,7 +191,7 @@
                       <v-img v-if="avis.photoProprietaire" :src="avis.photoProprietaire" cover></v-img>
                       <v-icon v-else icon="mdi-account" color="indigo" size="18"></v-icon>
                     </v-avatar>
-                    <span class="text-body-2 font-weight-bold">{{ avis.nomProprietaire }}</span>
+                    <span class="text-body-2 font-weight-bold text-black">{{ avis.nomProprietaire }}</span>
                   </div>
                   <div class="d-flex align-center ga-2">
                     <v-chip color="amber-darken-2" variant="tonal" size="small">
@@ -207,7 +206,7 @@
               </div>
 
               <div v-if="avisStore.moyenne !== null" class="moyenne-box d-flex align-center justify-space-between pa-4 rounded-xl mt-4">
-                <span class="text-body-2 font-weight-bold">Note moyenne</span>
+                <span class="text-body-2 font-weight-bold text-black">Note moyenne</span>
                 <v-chip color="amber-darken-2" variant="flat" size="large">
                   <v-icon icon="mdi-star" start size="16"></v-icon>
                   {{ avisStore.moyenne }} / 100
@@ -296,7 +295,6 @@
         <h3 class="text-h6 font-weight-black mb-4">Ajouter un service</h3>
         <v-text-field v-model="newService.typeService" label="Type de service" variant="outlined" density="comfortable" class="mb-2"></v-text-field>
         <v-text-field v-model="newService.description" label="Description" variant="outlined" density="comfortable" class="mb-2"></v-text-field>
-        <v-text-field v-model="newService.tarif" label="Tarif ($)" type="number" variant="outlined" density="comfortable" class="mb-2"></v-text-field>
         <v-text-field v-model="newService.dureeEstimee" label="Durée estimée (h)" type="number" variant="outlined" density="comfortable" class="mb-4"></v-text-field>
         <div class="d-flex justify-end ga-2">
           <v-btn variant="text" @click="addServiceDialog = false">Annuler</v-btn>
@@ -336,14 +334,12 @@ const editForm = reactive({
   description: '',
   experience: 0,
   tarifHoraire: 0,
-  tariffJournalier: 0,
   zoneService: '',
 })
 
 const newService = reactive({
   typeService: '',
   description: '',
-  tarif: 0,
   dureeEstimee: 0,
 })
 
@@ -362,7 +358,6 @@ onMounted(async () => {
       editForm.description = sitterStore.selectedSitter.description || ''
       editForm.experience = sitterStore.selectedSitter.experience || 0
       editForm.tarifHoraire = sitterStore.selectedSitter.priceHour || 0
-      editForm.tariffJournalier = sitterStore.selectedSitter.tariffJournalier || 0
       editForm.zoneService = sitterStore.selectedSitter.zoneService || ''
     }
   }
@@ -372,8 +367,6 @@ const handleSave = async () => {
   saveSuccess.value = false
   try {
     await sitterStore.updateSitterProfile(userStore.userId, editForm)
-    saveSuccess.value = true
-    setTimeout(() => saveSuccess.value = false, 3000)
   } catch (e) {
     console.error(e)
   }
@@ -397,11 +390,10 @@ const handleAddService = async () => {
       userStore.userId,
       newService.typeService,
       newService.description,
-      newService.tarif,
       newService.dureeEstimee
     )
     addServiceDialog.value = false
-    Object.assign(newService, { typeService: '', description: '', tarif: 0, dureeEstimee: 0 })
+    Object.assign(newService, { typeService: '', description: '', dureeEstimee: 0 })
   } catch (e) {
     console.error(e)
   }
@@ -476,4 +468,6 @@ const resetForm = () => {
 .moyenne-box { background: #FFFBF0; border: 1px solid #FFE082; }
 .service-item { background: #F8F9FF; border-radius: 10px; padding: 12px 16px; }
 .demande-item { background: #F8F9FF; border-radius: 10px; padding: 12px 16px; }
+.input-black :deep(input) { color: #1a1a1a !important; }
+.input-black :deep(.v-field__suffix) { color: #1a1a1a !important; }
 </style>

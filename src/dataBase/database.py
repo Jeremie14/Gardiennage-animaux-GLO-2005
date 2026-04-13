@@ -192,13 +192,13 @@ def get_all_gardiens():
         connection.close()
 
 
-def update_gardien(id_utilisateur, experience, tarif_horaire, description, tarif_journalier, zone_service):
+def update_gardien(id_utilisateur, experience, tarif_horaire, description, zone_service):
     connection, cursor = get_cursor()
     try:
         cursor.execute(
-            'UPDATE GardienAnimaux SET experience=%s, tarifHoraire=%s, description=%s, '
-            'tariffJournalier=%s, zoneService=%s WHERE idGardien=%s',
-            (experience, tarif_horaire, description, tarif_journalier, zone_service, id_utilisateur)
+            f'UPDATE GardienAnimaux SET experience=%s, tarifHoraire=%s, description=%s, '
+            f'zoneService=%s WHERE idGardien=%s',
+            (experience, tarif_horaire, description, zone_service, id_utilisateur)
         )
     finally:
         cursor.close()
@@ -207,13 +207,13 @@ def update_gardien(id_utilisateur, experience, tarif_horaire, description, tarif
 
 # ─── Service ─────────────────────────────────────────────────────────────────
 
-def insert_service(id_gardien, type_service, description, tarif, duree):
+def insert_service(id_gardien, type_service, description, duree):
     connection, cursor = get_cursor()
     try:
         cursor.execute(
-            'INSERT INTO Service(idGardien, typeService, description, tarif, dureeEstimee) '
-            'VALUES (%s, %s, %s, %s, %s)',
-            (id_gardien, type_service, description, tarif, duree)
+            'INSERT INTO Service(idGardien, typeService, description, dureeEstimee) '
+            'VALUES (%s, %s, %s, %s)',
+            (id_gardien, type_service, description, duree)
         )
     finally:
         cursor.close()

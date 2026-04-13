@@ -326,7 +326,7 @@ const finishSignUp = async () => {
       role: selectedRole.value === 'owner' ? 'Proprietaire' : 'Gardien'
     })
 
-    await userStore.login(email.value, password.value)
+
 
     if (selectedRole.value === 'Gardien') {
       await sitterService.createSitter( {
@@ -336,6 +336,7 @@ const finishSignUp = async () => {
         description: sitterForm.description,
         zoneService: sitterForm.zoneService,
       })
+      await userStore.login(email.value, password.value)
       await router.push('/sitter/profile')
     } else {
       await router.push('/owner/dashboard')

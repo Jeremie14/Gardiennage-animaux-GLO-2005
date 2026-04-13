@@ -3,9 +3,9 @@ import axios from 'axios'
 const API_URL = 'http://127.0.0.1:5000/service'
 
 export default {
-  async createService(idGardien, typeService, description, tarif, dureeEstimee) {
+  async createService(idGardien, typeService, description, dureeEstimee) {
     const response = await axios.post(API_URL, {
-      idGardien, typeService, description, tarif, dureeEstimee,
+      idGardien, typeService, description, dureeEstimee,
     })
     return response.data
   },
