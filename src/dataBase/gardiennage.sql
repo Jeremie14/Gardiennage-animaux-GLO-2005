@@ -113,27 +113,55 @@ CREATE TABLE Avis (
     FOREIGN KEY (idProprietaire) REFERENCES Utilisateur(idUtilisateur)
 );
 
--- INDEXATION
+-- =========================
+-- INDEXATION DU SYSTÈME
+-- =========================
 
+-- DemandeReservation
 CREATE INDEX idx_demande_proprietaire ON DemandeReservation(idProprietaire);
 CREATE INDEX idx_demande_gardien ON DemandeReservation(idGardien);
+CREATE INDEX idx_demande_animal ON DemandeReservation(idAnimal);
+CREATE INDEX idx_demande_service ON DemandeReservation(idService);
 CREATE INDEX idx_demande_dates ON DemandeReservation(dateDebut, dateFin);
 CREATE INDEX idx_demande_statut ON DemandeReservation(statutDemande);
 
+-- Disponibilite
+CREATE INDEX idx_dispo_gardien ON Disponibilite(idGardien);
+CREATE INDEX idx_dispo_dates ON Disponibilite(dateDebut, dateFin);
+CREATE INDEX idx_dispo_statut ON Disponibilite(statutDisponibilite);
+
+-- Service
 CREATE INDEX idx_service_gardien ON Service(idGardien);
 CREATE INDEX idx_service_type ON Service(typeService);
 
-CREATE INDEX idx_avis_gardien ON Avis(idGardien);
+-- Reservation
+CREATE INDEX idx_reservation_statut ON Reservation(statutReservation);
+CREATE INDEX idx_reservation_date_confirmation ON Reservation(dateConfirmation);
 
+-- Paiement
 CREATE INDEX idx_paiement_reservation ON Paiement(idReservation);
+CREATE INDEX idx_paiement_statut ON Paiement(statutPaiement);
 
+-- Avis
+CREATE INDEX idx_avis_gardien ON Avis(idGardien);
+CREATE INDEX idx_avis_proprietaire ON Avis(idProprietaire);
+CREATE INDEX idx_avis_reservation ON Avis(idReservation);
+
+-- Animal
 CREATE INDEX idx_animal_proprietaire ON Animal(idProprietaire);
+CREATE INDEX idx_animal_espece ON Animal(espece);
 
-CREATE INDEX idx_gardien_utilisateur ON GardienAnimaux(idGardien);
+-- GardienAnimaux
+CREATE INDEX idx_gardien_zone ON GardienAnimaux(zoneService);
+CREATE INDEX idx_gardien_verification ON GardienAnimaux(verificationIdentite);
+
+-- Utilisateur
+CREATE INDEX idx_utilisateur_role ON Utilisateur(role);
 
 
-
+-- ==============
 -- DONNÉES
+-- ==============
 
 INSERT INTO Utilisateur (nom, prenom, email, numTelephone, adresse, dateInscription, motDePasse, role, photoDeProfil) VALUES
 ('Tremblay', 'Jeremie', 'jeremie.tremblay@gmail.com', '5814432001', '123 rue de la Fontaine', '2020-03-15', 'Pass0001', 'Proprietaire', 'https://randomuser.me/api/portraits/men/1.jpg'),
