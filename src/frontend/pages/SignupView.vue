@@ -163,13 +163,79 @@
                   size="x-large"
                   class="px-12 rounded-pill font-weight-black shadow-lg"
                   :disabled="!selectedRole"
-                  @click="finishSignUp"
+                  @click="selectedRole === 'sitter' ? step = 3 : finishSignUp()"
                 >
                   Creer un compte
                 </v-btn>
               </div>
             </v-window-item>
+            <v-window-item :value="3">
+  <div class="text-center mb-8">
+    <v-icon icon="mdi-briefcase-check" color="primary" size="40" class="mb-2"></v-icon>
+    <h2 class="text-h4 font-weight-black">Votre profil gardien</h2>
+    <p class="text-grey-darken-1 mt-1">Ces informations seront visibles par les propriétaires</p>
+  </div>
 
+  <v-text-field
+    v-model="sitterForm.experience"
+    label="Années d'expérience"
+    type="number"
+    variant="outlined"
+    color="primary"
+    density="comfortable"
+    prepend-inner-icon="mdi-clock-outline"
+    class="mb-2"
+  ></v-text-field>
+
+  <v-text-field
+    v-model="sitterForm.tarifHoraire"
+    label="Tarif horaire ($)"
+    type="number"
+    variant="outlined"
+    color="primary"
+    density="comfortable"
+    prepend-inner-icon="mdi-currency-usd"
+    class="mb-2"
+  ></v-text-field>
+
+  <v-text-field
+    v-model="sitterForm.zoneService"
+    label="Zone de service"
+    variant="outlined"
+    color="primary"
+    density="comfortable"
+    prepend-inner-icon="mdi-map-marker"
+    placeholder="Ex: Montréal, Laval..."
+    class="mb-2"
+  ></v-text-field>
+
+  <v-textarea
+    v-model="sitterForm.description"
+    label="Description"
+    variant="outlined"
+    color="primary"
+    density="comfortable"
+    prepend-inner-icon="mdi-text"
+    placeholder="Décrivez votre expérience, vos compétences..."
+    rows="4"
+    class="mb-4"
+  ></v-textarea>
+
+  <div class="d-flex justify-center align-center mt-4">
+    <v-btn variant="text" color="grey-darken-1" class="mr-4" @click="step = 2">
+      Retour
+    </v-btn>
+    <v-btn
+      color="primary"
+      size="x-large"
+      class="px-12 rounded-pill font-weight-black"
+      :loading="userStore.loading"
+      @click="finishSignUp"
+    >
+      Créer un compte
+    </v-btn>
+  </div>
+</v-window-item>
           </v-window>
         </v-card>
       </v-col>
@@ -231,6 +297,16 @@ const goToStepTwo = () => {
 }
 
 import { useUserStore} from "@/stores/UserStore.js";
+import { useSitterStore } from '@/stores/PetSitterStore.js'
+
+const sitterStore = useSitterStore()
+
+const sitterForm = reactive({
+  experience: 0,
+  tarifHoraire: 0,
+  zoneService: '',
+  description: '',
+})
 
 const userStore = useUserStore()
 
@@ -250,10 +326,21 @@ const finishSignUp = async () => {
 
     await userStore.login(email.value, password.value)
 
-    await router.push(selectedRole.value === 'owner' ? '/owner/dashboard' : '/sitter/profile')
+    if (selectedRole.value === 'sitter') {
+      await sitterStore.updateSitterProfile(userStore.userId, {
+        experience: sitterForm.experience,
+        tarifHoraire: sitterForm.tarifHoraire,
+        description: sitterForm.description,
+        zoneService: sitterForm.zoneService,
+      })
+      await router.push('/sitter/profile')
+    } else {
+      await router.push('/owner/dashboard')
+    }
 
   } catch (err) {
     formError.value = "Erreur lors de la création du compte."
+    step.value = 1
   }
 }
 
