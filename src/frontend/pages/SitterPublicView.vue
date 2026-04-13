@@ -244,41 +244,34 @@
               </div>
             </v-card>
 
-            <v-card flat border class="rounded-xl pa-6 mb-5">
-              <h3 class="section-title mb-4">
-                <v-icon icon="mdi-calendar-clock" class="mr-2" color="white"></v-icon>
-                Demandes reçues
-              </h3>
+          <v-card flat border class="rounded-xl pa-6 mb-5">
+  <h3 class="section-title mb-4">
+    <v-icon icon="mdi-calendar-check" class="mr-2" color="white"></v-icon>
+    Réservations
+  </h3>
 
-              <v-progress-linear v-if="demandeStore.loading" indeterminate color="indigo" class="mb-4"></v-progress-linear>
+  <v-progress-linear v-if="reservationStore.loading" indeterminate color="indigo" class="mb-4"></v-progress-linear>
 
-              <v-alert v-if="!demandeStore.loading && demandeStore.demandes.length === 0" type="info" variant="tonal" density="compact">
-                Aucune demande pour le moment.
-              </v-alert>
+  <v-alert v-if="!reservationStore.loading && toutesLesReservations.length === 0" type="info" variant="tonal" density="compact">
+    Aucune réservation pour le moment.
+  </v-alert>
 
-              <div v-for="demande in demandeStore.demandes" :key="demande.idDemande" class="demande-item mb-3">
-                <div class="d-flex align-center justify-space-between mb-1">
-                  <p class="text-body-2 font-weight-bold mb-0 text-black">
-  Demande #{{ demande.idDemande }}
-</p>
-                  <v-chip :color="demandeStatutColor(demande.statutDemande)" variant="tonal" size="x-small">
-                    {{ demande.statutDemande }}
-                  </v-chip>
-                </div>
-                <p class="text-caption text-grey mb-2">
-                  {{ new Date(demande.dateDebut).toLocaleDateString('fr-CA') }} – {{ new Date(demande.dateFin).toLocaleDateString('fr-CA') }}
-                </p>
-                <div v-if="demande.statutDemande === 'EN_ATTENTE'" class="d-flex ga-2">
-                  <v-btn color="green" variant="tonal" size="x-small" @click="handleUpdateDemande(demande.idDemande, 'ACCEPTEE')">
-                    Accepter
-                  </v-btn>
-                  <v-btn color="red" variant="tonal" size="x-small" @click="handleUpdateDemande(demande.idDemande, 'REFUSEE')">
-                    Refuser
-                  </v-btn>
-                </div>
-                <v-divider class="mt-3" v-if="demandeStore.demandes.indexOf(demande) < demandeStore.demandes.length - 1"></v-divider>
-              </div>
-            </v-card>
+  <div v-for="r in toutesLesReservations" :key="r.idReservation" class="demande-item mb-3">
+    <div class="d-flex align-center justify-space-between mb-1">
+      <p class="text-body-2 font-weight-bold mb-0 text-black">
+        Réservation #{{ r.idReservation }}
+      </p>
+      <v-chip :color="statutResColor(r.statut)" variant="tonal" size="x-small">
+        {{ r.statut || 'CONFIRMÉE' }}
+      </v-chip>
+    </div>
+    <p class="text-caption text-grey mb-1">
+      {{ new Date(r.dateDebut).toLocaleDateString('fr-CA') }} – {{ new Date(r.dateFin).toLocaleDateString('fr-CA') }}
+    </p>
+    <v-chip color="green" variant="tonal" size="x-small">{{ r.Totalprice }} $</v-chip>
+    <v-divider class="mt-3" v-if="toutesLesReservations.indexOf(r) < toutesLesReservations.length - 1"></v-divider>
+  </div>
+</v-card>
 
             <v-card flat border class="rounded-xl pa-6 save-card">
               <v-btn
@@ -316,18 +309,23 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useUserStore } from '@/stores/UserStore.js'
 import { useSitterStore } from '@/stores/PetSitterStore.js'
 import { useAvisStore } from '@/stores/avisStore.js'
 import { useServiceStore } from '@/stores/ServiceStore.js'
 import { useDemandeStore } from '@/stores/DemandeStore.js'
+import { useReservationStore } from '@/stores/ReservationStore.js'
+
+
+
 
 const userStore = useUserStore()
 const sitterStore = useSitterStore()
 const avisStore = useAvisStore()
 const serviceStore = useServiceStore()
 const demandeStore = useDemandeStore()
+const reservationStore = useReservationStore()
 
 const saveSuccess = ref(false)
 const addServiceDialog = ref(false)
@@ -357,6 +355,8 @@ onMounted(async () => {
     await avisStore.fetchAvisBySitter(userId)
     await avisStore.fetchMoyenneBySitter(userId)
     await demandeStore.fetchDemandesBySitter(userId)
+    await reservationStore.fetchConfirmedReservationsByUser(userId)
+    await reservationStore.fetchPastReservationsByUser(userId)
 
     if (sitterStore.selectedSitter) {
       editForm.description = sitterStore.selectedSitter.description || ''
@@ -378,7 +378,19 @@ const handleSave = async () => {
     console.error(e)
   }
 }
+const toutesLesReservations = computed(() => [
+  ...reservationStore.confirmedReservation,
+  ...reservationStore.pastReservations,
+])
 
+const statutResColor = (statut) => {
+  switch (statut) {
+    case 'CONFIRMEE':  return 'green'
+    case 'EN_COURS': return 'orange'
+    case 'TERMINEE':   return 'blue'
+    default:           return 'green'
+  }
+}
 const handleAddService = async () => {
   try {
     await serviceStore.createService(

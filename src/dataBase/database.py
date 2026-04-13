@@ -506,3 +506,5 @@ def get_moyenne_avis_gardien(id_gardien):
     finally:
         cursor.close()
         connection.close()
+
+

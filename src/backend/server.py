@@ -25,6 +25,17 @@ def user_register():
         data['password'],
         data.get('role', 'Proprietaire')
     )
+    if data.get('role') == 'Gardien':
+        user = get_utilisateur_by_email(data['email'])
+        if user:
+            insert_gardien(
+                user[0],
+                data.get('experience', 0),
+                data.get('tarifHoraire', 0),
+                data.get('description', ''),
+                data.get('zoneService', None)
+            )
+
     return jsonify({'status': 'created'}), 201
 
 
@@ -281,23 +292,44 @@ def get_demandes_proprietaire(id_proprietaire):
 @app.route('/demande/gardien/<int:id_gardien>', methods=['GET'])
 def get_demandes_gardien(id_gardien):
     demandes = get_demandes_by_gardien(id_gardien)
-    return jsonify([_format_demande(d) for d in demandes])
+    return jsonify([_format_demande(d, with_proprietaire=True) for d in demandes])
 
 
 @app.route('/demande/<int:id_demande>/statut', methods=['PUT'])
 def update_demande_statut(id_demande):
     data = request.get_json()
-    update_statut_demande(id_demande, data['statut'])
+    statut = data['statut']
+    update_statut_demande(id_demande, statut)
+
+    if statut == 'ACCEPTEE':
+        demande = get_demande_by_id(id_demande)
+        if demande:
+            reservation_existante = get_reservation_by_demande(id_demande)
+            if not reservation_existante:
+                insert_reservation(
+                    id_demande,
+                    str(date.today()),
+                    0,
+                    'CONFIRMEE'
+                )
+
     return jsonify({'status': 'updated'})
 
 
-def _format_demande(d):
-    return {
+def _format_demande(d, with_proprietaire=False):
+    result = {
         'idDemande': d[0], 'idProprietaire': d[1], 'idGardien': d[2],
         'idAnimal': d[3], 'idService': d[4],
         'dateDebut': str(d[5]), 'dateFin': str(d[6]),
         'message': d[7], 'dateCreation': str(d[8]), 'statutDemande': d[9]
     }
+    if with_proprietaire:
+        user = get_utilisateur_by_id(d[1])
+        animal = get_animal_by_id(d[3])
+        result['nomProprietaire'] = f"{user[1]} {user[2]}" if user else 'Anonyme'
+        result['photoProprietaire'] = user[9] if user else None
+        result['nomAnimal'] = animal[1] if animal else None
+    return result
 
 
 @app.route('/reservation', methods=['POST'])

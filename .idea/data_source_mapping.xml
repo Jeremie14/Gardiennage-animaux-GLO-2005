@@ -2,5 +2,6 @@
 <project version="4">
   <component name="DataSourcePerFileMappings">
     <file url="file://$PROJECT_DIR$/src/dataBase/gardiennage.sql" value="6bea31a8-e618-4933-8984-6636131208e0" />
+    <file url="file://$PROJECT_DIR$/src/dataBase/routines.sql" value="6bea31a8-e618-4933-8984-6636131208e0" />
   </component>
 </project>

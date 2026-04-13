@@ -244,8 +244,11 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserStore} from "@/stores/UserStore.js";
+import { useSitterStore } from '@/stores/PetSitterStore.js'
+import sitterService from '@/service/sitterService.js'
 
 const router = useRouter()
 const step = ref(1)
@@ -296,8 +299,7 @@ const goToStepTwo = () => {
   step.value = 2
 }
 
-import { useUserStore} from "@/stores/UserStore.js";
-import { useSitterStore } from '@/stores/PetSitterStore.js'
+
 
 const sitterStore = useSitterStore()
 
@@ -326,8 +328,9 @@ const finishSignUp = async () => {
 
     await userStore.login(email.value, password.value)
 
-    if (selectedRole.value === 'sitter') {
-      await sitterStore.updateSitterProfile(userStore.userId, {
+    if (selectedRole.value === 'Gardien') {
+      await sitterService.createSitter( {
+        idUtilisateur: userStore.userId,
         experience: sitterForm.experience,
         tarifHoraire: sitterForm.tarifHoraire,
         description: sitterForm.description,
