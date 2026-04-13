@@ -114,30 +114,42 @@ CREATE TABLE Avis (
     FOREIGN KEY (idProprietaire) REFERENCES Utilisateur(idUtilisateur)
 );
 
--- INDEXATION
+-- =========================
+-- INDEXATION DU SYSTÈME
+-- =========================
 
+-- DemandeReservation (très utilisée dans les requêtes)
 CREATE INDEX idx_demande_proprietaire ON DemandeReservation(idProprietaire);
 CREATE INDEX idx_demande_gardien ON DemandeReservation(idGardien);
 CREATE INDEX idx_demande_dates ON DemandeReservation(dateDebut, dateFin);
 CREATE INDEX idx_demande_statut ON DemandeReservation(statutDemande);
 
-CREATE INDEX idx_disponibilite_gardien ON Disponibilite(idGardien);
-CREATE INDEX idx_disponibilite_dates ON Disponibilite(dateDebut, dateFin);
+-- Disponibilite (recherche par période + gardien)
+CREATE INDEX idx_dispo_gardien ON Disponibilite(idGardien);
+CREATE INDEX idx_dispo_dates ON Disponibilite(dateDebut, dateFin);
+CREATE INDEX idx_dispo_statut ON Disponibilite(statutDisponibilite);
 
+-- Service (filtre par type + jointure)
 CREATE INDEX idx_service_gardien ON Service(idGardien);
 CREATE INDEX idx_service_type ON Service(typeService);
 
+-- Avis (calcul moyenne)
 CREATE INDEX idx_avis_gardien ON Avis(idGardien);
 
+-- Paiement (liaison avec réservation)
 CREATE INDEX idx_paiement_reservation ON Paiement(idReservation);
 
+-- Animal (liaison avec propriétaire)
 CREATE INDEX idx_animal_proprietaire ON Animal(idProprietaire);
 
+-- GardienAnimaux (recherche gardiens actifs)
 CREATE INDEX idx_gardien_utilisateur ON GardienAnimaux(idUtilisateur);
 CREATE INDEX idx_gardien_actif ON GardienAnimaux(actif);
+CREATE INDEX idx_gardien_zone ON GardienAnimaux(zoneService);
 
-
--- DONNÉES
+-- ===============
+-- Données
+-- ===============
 
 INSERT INTO Utilisateur (
     nom, prenom, email, numTelephone, adresse, dateInscription, motDePasse, statutCompte, role
