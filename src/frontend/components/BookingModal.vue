@@ -1,10 +1,27 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import { useUserStore } from '@/stores/UserStore.js'
 import { useAnimalStore } from '@/stores/AnimalStore.js'
 import { useDemandeStore} from "@/stores/DemandeStore.js";
 import { useServiceStore} from "@/stores/ServiceStore.js";
 import sitterService from '@/service/sitterService.js'
+import reservationService from '@/service/reservationService.js'
+import paymentService from '@/service/paymentService.js'
+
+const step = ref(1)
+const bookingHours = ref(1)
+
+const cardName = ref('')
+const cardNumber = ref('')
+const expiryDate = ref('')
+const cvv = ref('')
+const paymentMethod = ref('Crédit')
+
+const totalPrice = computed(() => {
+  const priceHour = Number(props.sitter?.priceHour || 0)
+  const hours = Number(bookingHours.value || 0)
+  return priceHour * hours
+})
 
 const props = defineProps(['modelValue', 'sitter'])
 const emit = defineEmits(['update:modelValue'])
@@ -44,11 +61,18 @@ const clearMessages = () => {
 }
 
 const resetForm = () => {
+  step.value = 1
   dateDebut.value = ''
   dateFin.value = ''
+  bookingHours.value = 1
   selectedAnimal.value = null
   selectedService.value = null
   message.value = ''
+  cardName.value = ''
+  cardNumber.value = ''
+  expiryDate.value = ''
+  cvv.value = ''
+  paymentMethod.value = 'Crédit'
   formError.value = ''
   successMessage.value = ''
 }
@@ -58,17 +82,34 @@ const closeModal = () => {
   emit('update:modelValue', false)
 }
 
-const handleBooking = async () => {
+const goToPaymentStep = () => {
   formError.value = ''
   successMessage.value = ''
 
   if (!dateDebut.value || !dateFin.value || !selectedAnimal.value || !selectedService.value) {
-    formError.value = 'Veuillez remplir tous les champs avant de confirmer.'
+    formError.value = 'Veuillez remplir les informations de reservation avant de continuer.'
+    return
+  }
+
+  if (!bookingHours.value || Number(bookingHours.value) <= 0) {
+    formError.value = "Le nombre d'heures doit etre superieur a 0."
+    return
+  }
+
+  step.value = 2
+}
+
+const handleBooking = async () => {
+  formError.value = ''
+  successMessage.value = ''
+
+  if (!cardName.value || !cardNumber.value || !expiryDate.value || !cvv.value) {
+    formError.value = 'Veuillez remplir toutes les informations de paiement.'
     return
   }
 
   try {
-    await demandeStore.createDemande(
+    const demandeResult = await demandeStore.createDemande(
       userStore.userId,
       props.sitter.id,
       selectedAnimal.value,
@@ -77,12 +118,27 @@ const handleBooking = async () => {
       dateFin.value,
       message.value
     )
-    successMessage.value = 'Votre demande de réservation a été envoyée avec succès.'
+
+    const reservationResult = await reservationService.createReservation(
+      demandeResult.idDemande,
+      new Date().toISOString().split('T')[0],
+      totalPrice.value,
+      'CONFIRMEE'
+    )
+
+    await paymentService.createPayment(
+      totalPrice.value,
+      new Date().toISOString().split('T')[0],
+      paymentMethod.value,
+      reservationResult.idReservation,
+      'PAYE'
+    )
+
+    successMessage.value = 'Paiement effectue et demande de reservation envoyee avec succes.'
   } catch (e) {
-    formError.value = "Erreur lors de l'envoi de la demande."
+    formError.value = "Erreur lors du paiement ou de l'envoi de la demande."
   }
 }
-
 
 </script>
 
@@ -101,72 +157,181 @@ const handleBooking = async () => {
         <v-alert v-if="formError" type="error" variant="tonal" class="mb-4">{{ formError }}</v-alert>
         <v-alert v-if="successMessage" type="success" variant="tonal" class="mb-4">{{ successMessage }}</v-alert>
 
-        <v-row>
-          <v-col cols="6">
-            <v-text-field
-              v-model="dateDebut"
-              label="Date de début"
-              type="date"
-              variant="outlined"
-              density="comfortable"
-              @update:model-value="clearMessages"
-            ></v-text-field>
-          </v-col>
-          <v-col cols="6">
-            <v-text-field
-              v-model="dateFin"
-              label="Date de fin"
-              type="date"
-              variant="outlined"
-              density="comfortable"
-              @update:model-value="clearMessages"
-            ></v-text-field>
-          </v-col>
+        <v-window v-model="step">
+          <v-window-item :value="1">
+            <v-row>
+              <v-col cols="6">
+                <v-text-field
+                  v-model="dateDebut"
+                  label="Date de debut"
+                  type="date"
+                  variant="outlined"
+                  density="comfortable"
+                  @update:model-value="clearMessages"
+                ></v-text-field>
+              </v-col>
 
-          <v-col cols="12">
-            <v-select
-              v-model="selectedAnimal"
-              label="Mon animal"
-              :items="animalStore.animals.map(a => ({ title: a.name, value: a.idAnimal }))"
-              item-title="title"
-              item-value="value"
-              variant="outlined"
-              density="comfortable"
-              @update:model-value="clearMessages"
-            ></v-select>
-          </v-col>
+              <v-col cols="6">
+                <v-text-field
+                  v-model="dateFin"
+                  label="Date de fin"
+                  type="date"
+                  variant="outlined"
+                  density="comfortable"
+                  @update:model-value="clearMessages"
+                ></v-text-field>
+              </v-col>
 
-          <v-col cols="12">
-           <v-select
-  v-model="selectedService"
-  label="Service souhaité"
-  :items="serviceStore.services.map(s => ({ title: s.typeService, value: s.idService }))"
-  item-title="title"
-  item-value="value"
-  variant="outlined"
-  density="comfortable"
-  :loading="serviceStore.loading"
-  :no-data-text="'Aucun service disponible'"
-  @update:model-value="clearMessages"
-></v-select>
-          </v-col>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="bookingHours"
+                  label="Nombre d'heures"
+                  type="number"
+                  min="1"
+                  variant="outlined"
+                  density="comfortable"
+                  @update:model-value="clearMessages"
+                ></v-text-field>
+              </v-col>
 
-          <v-col cols="12">
-            <v-textarea
-              v-model="message"
-              label="Message (optionnel)"
-              variant="outlined"
-              density="comfortable"
-              rows="3"
-            ></v-textarea>
-          </v-col>
-        </v-row>
+              <v-col cols="12">
+                <v-select
+                  v-model="selectedAnimal"
+                  label="Mon animal"
+                  :items="animalStore.animals.map(a => ({ title: a.name, value: a.idAnimal }))"
+                  item-title="title"
+                  item-value="value"
+                  variant="outlined"
+                  density="comfortable"
+                  @update:model-value="clearMessages"
+                ></v-select>
+              </v-col>
+
+              <v-col cols="12">
+                <v-select
+                  v-model="selectedService"
+                  label="Service souhaite"
+                  :items="serviceStore.services.map(s => ({ title: s.typeService, value: s.idService }))"
+                  item-title="title"
+                  item-value="value"
+                  variant="outlined"
+                  density="comfortable"
+                  :loading="serviceStore.loading"
+                  :no-data-text="'Aucun service disponible'"
+                  @update:model-value="clearMessages"
+                ></v-select>
+              </v-col>
+
+              <v-col cols="12">
+                <v-textarea
+                  v-model="message"
+                  label="Message (optionnel)"
+                  variant="outlined"
+                  density="comfortable"
+                  rows="3"
+                ></v-textarea>
+              </v-col>
+            </v-row>
+          </v-window-item>
+
+          <v-window-item :value="2">
+            <div class="mb-4">
+              <div class="text-subtitle-1 font-weight-bold">Resume du paiement</div>
+              <div class="text-body-2 text-grey-darken-1">
+                Taux horaire : {{ props.sitter.priceHour }} $ / h
+              </div>
+              <div class="text-body-2 text-grey-darken-1">
+                Nombre d'heures : {{ bookingHours }}
+              </div>
+              <div class="text-h6 font-weight-black mt-2">
+                Total : {{ totalPrice }} $
+              </div>
+            </div>
+
+            <v-row>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="cardName"
+                  label="Nom sur la carte"
+                  variant="outlined"
+                  density="comfortable"
+                  @update:model-value="clearMessages"
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="12">
+                <v-text-field
+                  v-model="cardNumber"
+                  label="Numero de carte"
+                  variant="outlined"
+                  density="comfortable"
+                  maxlength="16"
+                  @update:model-value="clearMessages"
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="6">
+                <v-text-field
+                  v-model="expiryDate"
+                  label="Date d'expiration"
+                  placeholder="MM/AA"
+                  variant="outlined"
+                  density="comfortable"
+                  @update:model-value="clearMessages"
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="6">
+                <v-text-field
+                  v-model="cvv"
+                  label="CVV"
+                  variant="outlined"
+                  density="comfortable"
+                  maxlength="4"
+                  @update:model-value="clearMessages"
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="12">
+                <v-select
+                  v-model="paymentMethod"
+                  label="Methode de paiement"
+                  :items="['Crédit', 'Débit']"
+                  variant="outlined"
+                  density="comfortable"
+                  @update:model-value="clearMessages"
+                ></v-select>
+              </v-col>
+            </v-row>
+          </v-window-item>
+        </v-window>
       </v-card-text>
 
       <v-card-actions>
         <v-btn variant="text" @click="closeModal">Annuler</v-btn>
         <v-spacer></v-spacer>
+
         <v-btn
+          v-if="step === 2"
+          variant="text"
+          @click="step = 1"
+        >
+          Retour
+        </v-btn>
+
+        <v-btn
+          v-if="step === 1"
+          color="primary"
+          variant="flat"
+          size="large"
+          class="px-8 rounded-lg"
+          @click="goToPaymentStep"
+        >
+          Continuer vers le paiement
+        </v-btn>
+
+        <v-btn
+          v-else
           color="primary"
           variant="flat"
           size="large"
@@ -174,9 +339,10 @@ const handleBooking = async () => {
           :loading="demandeStore.loading"
           @click="handleBooking"
         >
-          Confirmer
+          Payer et envoyer
         </v-btn>
       </v-card-actions>
+
     </v-card>
   </v-dialog>
 </template>

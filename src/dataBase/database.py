@@ -3,7 +3,7 @@ import pymysql.cursors
 DB_CONFIG = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'Aymen12345',
+    'password': 'motdepassesql',
     'db': 'gardiennage_animaux_GLO2005_2026',
     'autocommit': True,
 }
@@ -298,6 +298,7 @@ def insert_demandeReservation(id_proprietaire, id_gardien, id_animal, id_service
             'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, "EN_ATTENTE")',
             (id_proprietaire, id_gardien, id_animal, id_service, debut, fin, message, creation)
         )
+        return cursor.lastrowid
     finally:
         cursor.close()
         connection.close()
@@ -359,7 +360,6 @@ def get_accepted_demandes_by_owner_id(id_proprietaire):
 
 
 # ─── Reservation ─────────────────────────────────────────────────────────────
-
 def insert_reservation(id_demande, date, prix, statut='CONFIRMEE'):
     connection, cursor = get_cursor()
     try:
@@ -368,6 +368,7 @@ def insert_reservation(id_demande, date, prix, statut='CONFIRMEE'):
             'VALUES (%s, %s, %s, %s)',
             (id_demande, date, statut, prix)
         )
+        return cursor.lastrowid
     finally:
         cursor.close()
         connection.close()
@@ -445,10 +446,10 @@ def insert_paiement(montant, date, methode, id_reservation, statut='EN_ATTENTE')
             'VALUES (%s, %s, %s, %s, %s)',
             (montant, date, methode, id_reservation, statut)
         )
+        return cursor.lastrowid
     finally:
         cursor.close()
         connection.close()
-
 
 def get_paiement_by_reservation(id_reservation):
     connection, cursor = get_cursor()

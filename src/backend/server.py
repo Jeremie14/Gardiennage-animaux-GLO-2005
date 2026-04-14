@@ -268,7 +268,7 @@ def update_disponibilite(id_disponibilite):
 @app.route('/demande', methods=['POST'])
 def create_demande():
     data = request.get_json()
-    insert_demandeReservation(
+    id_demande = insert_demandeReservation(
         data['idProprietaire'],
         data['idGardien'],
         data['idAnimal'],
@@ -278,7 +278,7 @@ def create_demande():
         data['message'],
         str(date.today())
     )
-    return jsonify({'status': 'created'}), 201
+    return jsonify({'status': 'created', 'idDemande': id_demande}), 201
 
 
 @app.route('/demande/proprietaire/<int:id_proprietaire>', methods=['GET'])
@@ -333,13 +333,13 @@ def _format_demande(d, with_proprietaire=False):
 @app.route('/reservation', methods=['POST'])
 def create_reservation():
     data = request.get_json()
-    insert_reservation(
+    id_reservation = insert_reservation(
         data['idDemande'],
         data['dateConfirmation'],
         data['prixTotal'],
         data.get('statutReservation', 'CONFIRMEE')
     )
-    return jsonify({'status': 'created'}), 201
+    return jsonify({'status': 'created', 'idReservation': id_reservation}), 201
 
 
 @app.route('/reservation/<int:id_reservation>', methods=['GET'])
@@ -412,14 +412,14 @@ def get_passees_reservation(id_utilisateur):
 @app.route('/paiement', methods=['POST'])
 def create_paiement():
     data = request.get_json()
-    insert_paiement(
+    id_paiement = insert_paiement(
         data['montant'],
         data['datePaiement'],
         data['methodePaiement'],
         data['idReservation'],
         data.get('statutPaiement', 'EN_ATTENTE')
     )
-    return jsonify({'status': 'created'}), 201
+    return jsonify({'status': 'created', 'idPaiement': id_paiement}), 201
 
 
 @app.route('/paiement/reservation/<int:id_reservation>', methods=['GET'])
