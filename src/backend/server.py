@@ -165,7 +165,6 @@ def create_gardien():
         data['experience'],
         data['tarifHoraire'],
         data['description'],
-        data.get('tariffJournalier'),
         data.get('zoneService')
     )
     return jsonify({'status': 'created'}), 201
@@ -174,12 +173,15 @@ def create_gardien():
 @app.route('/gardien', methods=['GET'])
 def list_gardiens():
     gardiens = get_all_gardiens()
-    result = [
-        {'id': g[0], 'experience': g[1], 'priceHour': g[2],
-         'description': g[3], 'zoneService': g[4], 'verifId': g[5],
-         'latName': g[6], 'name': g[7], 'email': g[8], 'adress': g[9], "photo": g[10]}
-        for g in gardiens
-    ]
+    result = []
+    for g in gardiens:
+        moyenne = get_moyenne_avis_gardien(g[0])
+        result.append({
+            'id': g[0], 'experience': g[1], 'priceHour': g[2],
+            'description': g[3], 'zoneService': g[4], 'verifId': g[5],
+            'latName': g[6], 'name': g[7], 'email': g[8], 'adress': g[9], 'photo': g[10],
+            'moyenneNote': round(float(moyenne), 1) if moyenne else None
+        })
     return jsonify(result)
 
 

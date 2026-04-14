@@ -12,8 +12,8 @@
           {{ sitter.lastName }} {{sitter.name }}
         </v-card-title>
         <v-chip size="small" color="amber" variant="flat">
-          ★ {{ sitter.rating || '5.0' }}
-        </v-chip>
+  ★ {{ sitter.rating !== null && sitter.rating !== undefined ? sitter.rating : 'N/A' }}
+</v-chip>
       </div>
       <v-card-subtitle class="text-primary font-weight-bold">
         {{ sitter.priceHour}} $ / h

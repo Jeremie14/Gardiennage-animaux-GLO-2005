@@ -151,7 +151,7 @@
                 </v-avatar>
                 <div>
                   <p class="text-caption text-grey mb-0">Email</p>
-                  <p class="text-body-2 font-weight-bold mb-0">{{ sitterStore.selectedSitter.email }}</p>
+                  <p class="text-body-2 font-weight-bold text-grey mb-0">{{ sitterStore.selectedSitter.email }}</p>
                 </div>
               </div>
               <div class="d-flex align-center" v-if="sitterStore.selectedSitter.adress">
