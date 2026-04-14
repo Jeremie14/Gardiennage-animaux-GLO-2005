@@ -11,7 +11,7 @@ export const useUserStore = defineStore('user', {
 
   getters: {
     isAuthenticated: (state) => !!state.user,
-    userRole: (state) => state.user.role,
+    userRole: (state) => state.user?.role || null,
     userId: (state) => state.user?.id || null
   },
 

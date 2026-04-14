@@ -9,7 +9,7 @@ const router = useRouter()
 
 const handleLogout = () => {
   userStore.logout()
-  router.push('/')
+  router.push('/login')
 }
 </script>
 
@@ -31,8 +31,8 @@ const handleLogout = () => {
     </template>
 
     <template v-else-if="userStore.userRole === 'Gardien'">
-      <v-btn variant="text" to="/sitter/bookings">Mes demandes</v-btn>
-      <v-btn variant="text" to="/sitter/profile">Mon profil</v-btn>
+      <v-btn variant="text" to="/sitter/bookings/">Mes demandes</v-btn>
+      <v-btn variant="text" to="/sitter/profile/">Mon profil</v-btn>
     </template>
       </div>
 

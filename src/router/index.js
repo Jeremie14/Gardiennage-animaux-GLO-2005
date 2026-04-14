@@ -36,9 +36,9 @@ const router = createRouter({
 
 
     { path: '/owner/:id', component: OwnerPublicView },
-    { path: '/sitter/profile', component: SitterPublicView },
+    { path: '/sitter/profile/', component: SitterPublicView },
     {
-    path: '/sitter/bookings',
+    path: '/sitter/bookings/',
     name: 'SitterBookings',
     component: SitterBookings
   },
