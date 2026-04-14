@@ -3,12 +3,13 @@ import axios from 'axios'
 const API_URL = 'http://127.0.0.1:5000/demande'
 
 export default {
-  async createBookingRequest(idProprietaire, idGardien, idAnimal, idService, dateDebut, dateFin, message) {
+  async createBookingRequest(idProprietaire, idGardien, idAnimal, idService, dateDebut, dateFin, message, nombreHeures) {
     const response = await axios.post(API_URL, {
-      idProprietaire, idGardien, idAnimal, idService, dateDebut, dateFin, message,
+      idProprietaire, idGardien, idAnimal, idService, dateDebut, dateFin, message, nombreHeures,
     })
     return response.data
   },
+
 
   async getBookingRequestsByOwner(ownerId) {
     const response = await axios.get(`${API_URL}/proprietaire/${ownerId}`)

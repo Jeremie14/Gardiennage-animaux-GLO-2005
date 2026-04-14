@@ -289,7 +289,7 @@ def update_disponibilite(id_disponibilite):
 @app.route('/demande', methods=['POST'])
 def create_demande():
     data = request.get_json()
-    insert_demandeReservation(
+    id_demande = insert_demandeReservation(
         data['idProprietaire'],
         data['idGardien'],
         data['idAnimal'],
@@ -297,9 +297,10 @@ def create_demande():
         data['dateDebut'],
         data['dateFin'],
         data['message'],
-        str(date.today())
+        str(date.today()),
+        data.get('nombreHeures', 1)
     )
-    return jsonify({'status': 'created'}), 201
+    return jsonify({'status': 'created', 'idDemande': id_demande}), 201
 
 
 @app.route('/demande/proprietaire/<int:id_proprietaire>', methods=['GET'])
@@ -325,13 +326,17 @@ def update_demande_statut(id_demande):
         if demande:
             reservation_existante = get_reservation_by_demande(id_demande)
             if not reservation_existante:
+                gardien = get_gardien_by_id(demande[2])
+                tarif_horaire = gardien[2] if gardien else 0
+                nombre_heures = demande[10] if len(demande) > 10 and demande[10] else 1
+                prix_total = tarif_horaire * nombre_heures
+
                 insert_reservation(
                     id_demande,
                     str(date.today()),
-                    0,
+                    prix_total,
                     'CONFIRMEE'
                 )
-
     return jsonify({'status': 'updated'})
 
 
@@ -354,13 +359,13 @@ def _format_demande(d, with_proprietaire=False):
 @app.route('/reservation', methods=['POST'])
 def create_reservation():
     data = request.get_json()
-    insert_reservation(
+    id_reservation = insert_reservation(
         data['idDemande'],
         data['dateConfirmation'],
         data['prixTotal'],
         data.get('statutReservation', 'CONFIRMEE')
     )
-    return jsonify({'status': 'created'}), 201
+    return jsonify({'status': 'created', 'idReservation': id_reservation}), 201
 
 
 @app.route('/reservation/<int:id_reservation>', methods=['GET'])
@@ -385,7 +390,7 @@ def get_confirmee_reservation(id_utilisateur):
     rows = get_confirmed_reservations_by_user_id(id_utilisateur)
 
     if not rows:
-        return jsonify({'error': 'Aucune réservation confirmée trouvée'}), 404
+        return jsonify([]), 200
 
     reservations = []
     for r in rows:
@@ -433,14 +438,14 @@ def get_passees_reservation(id_utilisateur):
 @app.route('/paiement', methods=['POST'])
 def create_paiement():
     data = request.get_json()
-    insert_paiement(
+    id_paiement = insert_paiement(
         data['montant'],
         data['datePaiement'],
         data['methodePaiement'],
         data['idReservation'],
         data.get('statutPaiement', 'EN_ATTENTE')
     )
-    return jsonify({'status': 'created'}), 201
+    return jsonify({'status': 'created', 'idPaiement': id_paiement}), 201
 
 
 @app.route('/paiement/reservation/<int:id_reservation>', methods=['GET'])

@@ -33,12 +33,12 @@ export const useDemandeStore = defineStore('demande', {
       }
     },
 
-    async createDemande(idProprietaire, idGardien, idAnimal, idService, dateDebut, dateFin, message) {
+    async createDemande(idProprietaire, idGardien, idAnimal, idService, dateDebut, dateFin, message, nombreHeures) {
       this.loading = true
       this.error = null
       try {
         const result = await bookingRequestService.createBookingRequest(
-          idProprietaire, idGardien, idAnimal, idService, dateDebut, dateFin, message
+          idProprietaire, idGardien, idAnimal, idService, dateDebut, dateFin, message, nombreHeures
         )
         return result
       } catch (e) {
@@ -48,6 +48,7 @@ export const useDemandeStore = defineStore('demande', {
         this.loading = false
       }
     },
+
 
     async updateStatut(requestId, statut) {
       this.loading = true

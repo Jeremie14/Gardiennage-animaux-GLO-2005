@@ -979,6 +979,25 @@ JOIN Demandereservation D ON D.idDemande = R.idDemande
 WHERE (D.idProprietaire = 3 OR D.idGardien = 3)
 AND R.statutReservation = "CONFIRMEE";
 
-DELETE FROM gardienanimaux WHERE gardienanimaux.idGardien= 105;
+DELETE FROM gardienanimaux WHERE gardienanimaux.idGardien= 105
 
-ALTER TABLE Utilisateur MODIFY COLUMN motDePasse VARCHAR(255);
+ALTER TABLE DemandeReservation
+ADD COLUMN nombreHeures INT NOT NULL DEFAULT 1;
+
+SELECT idDemande, nombreHeures
+FROM DemandeReservation
+WHERE idDemande = 83;
+
+SELECT *
+FROM Service
+WHERE idGardien = 2;
+
+SELECT idService, idGardien, typeService, description, dureeEstimee
+FROM Service
+WHERE idGardien = 2;
+
+SHOW COLUMNS FROM DemandeReservation;
+
+ALTER TABLE DemandeReservation
+ADD COLUMN nombreHeures INT NOT NULL DEFAULT 1;
+

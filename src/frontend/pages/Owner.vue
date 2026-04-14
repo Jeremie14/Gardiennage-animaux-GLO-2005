@@ -70,9 +70,9 @@
       <div>
         <p class="font-weight-bold mb-0">Demande #{{ demande.idDemande }}</p>
         <p class="text-caption text-grey mb-0">
-          {{ new Date(demande.dateDebut).toLocaleDateString('fr-CA') }}
+          {{ formatLocalDate(demande.dateDebut) }}
           –
-          {{ new Date(demande.dateFin).toLocaleDateString('fr-CA') }}
+          {{ formatLocalDate(demande.dateFin) }}
         </p>
         <p class="text-caption text-grey mb-0" v-if="demande.message">
           "{{ demande.message }}"
@@ -110,9 +110,9 @@
             <div>
               <p class="font-weight-bold mb-0">Réservation #{{ reservation.idReservation }}</p>
               <p class="text-caption text-grey mb-0">
-                {{ new Date(reservation.dateDebut).toLocaleDateString('fr-CA') }}
+                {{ formatLocalDate(reservation.dateDebut) }}
                 –
-                {{ new Date(reservation.dateFin).toLocaleDateString('fr-CA') }}
+                {{ formatLocalDate(reservation.dateFin) }}
               </p>
             </div>
             <v-spacer></v-spacer>
@@ -230,13 +230,13 @@
               <v-col cols="6">
                 <div class="detail-box">
                   <p class="detail-box-label">Début</p>
-                  <p class="detail-box-value">{{ new Date(selectedReservation.dateDebut).toLocaleDateString('fr-CA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) }}</p>
+                  <p class="detail-box-value">{{ formatLocalDate(selectedReservation.dateDebut, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) }}</p>
                 </div>
               </v-col>
               <v-col cols="6">
                 <div class="detail-box">
                   <p class="detail-box-label">Fin</p>
-                  <p class="detail-box-value">{{ new Date(selectedReservation.dateFin).toLocaleDateString('fr-CA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) }}</p>
+                  <p class="detail-box-value">{{ formatLocalDate(selectedReservation.dateFin, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) }}</p>
                 </div>
               </v-col>
             </v-row>
@@ -393,6 +393,15 @@ const stats = computed(() => [
   { label: 'Gardes à venir', value: reservationStore.confirmedReservation.length },
   { label: 'Réservations passées', value: reservationStore.pastReservations.length },
 ])
+
+const formatLocalDate = (dateString, options = {}) => {
+  if (!dateString) return ''
+
+  const [year, month, day] = String(dateString).split('-').map(Number)
+  const localDate = new Date(year, month - 1, day)
+
+  return localDate.toLocaleDateString('fr-CA', options)
+}
 
 const statutColor = (statut) => {
   switch (statut) {
