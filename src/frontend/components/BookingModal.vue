@@ -5,8 +5,6 @@ import { useAnimalStore } from '@/stores/AnimalStore.js'
 import { useDemandeStore} from "@/stores/DemandeStore.js";
 import { useServiceStore} from "@/stores/ServiceStore.js";
 import sitterService from '@/service/sitterService.js'
-import reservationService from '@/service/reservationService.js'
-import paymentService from '@/service/paymentService.js'
 
 const step = ref(1)
 const bookingHours = ref(1)
@@ -109,34 +107,20 @@ const handleBooking = async () => {
   }
 
   try {
-    const demandeResult = await demandeStore.createDemande(
+    await demandeStore.createDemande(
       userStore.userId,
       props.sitter.id,
       selectedAnimal.value,
       selectedService.value,
       dateDebut.value,
       dateFin.value,
-      message.value
+      message.value,
+      Number(bookingHours.value)
     )
 
-    const reservationResult = await reservationService.createReservation(
-      demandeResult.idDemande,
-      new Date().toISOString().split('T')[0],
-      totalPrice.value,
-      'CONFIRMEE'
-    )
-
-    await paymentService.createPayment(
-      totalPrice.value,
-      new Date().toISOString().split('T')[0],
-      paymentMethod.value,
-      reservationResult.idReservation,
-      'PAYE'
-    )
-
-    successMessage.value = 'Paiement effectue et demande de reservation envoyee avec succes.'
+    successMessage.value = 'Votre demande de reservation a ete envoyee avec succes.'
   } catch (e) {
-    formError.value = "Erreur lors du paiement ou de l'envoi de la demande."
+    formError.value = "Erreur lors de l'envoi de la demande."
   }
 }
 

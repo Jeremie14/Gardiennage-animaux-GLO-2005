@@ -289,20 +289,19 @@ def update_disponibilite_statut(id_disponibilite, statut):
 # ─── DemandeReservation ──────────────────────────────────────────────────────
 
 def insert_demandeReservation(id_proprietaire, id_gardien, id_animal, id_service,
-                              debut, fin, message, creation):
+                              debut, fin, message, creation, nombre_heures):
     connection, cursor = get_cursor()
     try:
         cursor.execute(
             'INSERT INTO DemandeReservation(idProprietaire, idGardien, idAnimal, idService, '
-            'dateDebut, dateFin, message, dateCreation, statutDemande) '
-            'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, "EN_ATTENTE")',
-            (id_proprietaire, id_gardien, id_animal, id_service, debut, fin, message, creation)
+            'dateDebut, dateFin, message, dateCreation, statutDemande, nombreHeures) '
+            'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, "EN_ATTENTE", %s)',
+            (id_proprietaire, id_gardien, id_animal, id_service, debut, fin, message, creation, nombre_heures)
         )
         return cursor.lastrowid
     finally:
         cursor.close()
         connection.close()
-
 
 def get_demandes_by_proprietaire(id_proprietaire):
     connection, cursor = get_cursor()

@@ -276,7 +276,8 @@ def create_demande():
         data['dateDebut'],
         data['dateFin'],
         data['message'],
-        str(date.today())
+        str(date.today()),
+        data.get('nombreHeures', 1)
     )
     return jsonify({'status': 'created', 'idDemande': id_demande}), 201
 
@@ -304,13 +305,17 @@ def update_demande_statut(id_demande):
         if demande:
             reservation_existante = get_reservation_by_demande(id_demande)
             if not reservation_existante:
+                gardien = get_gardien_by_id(demande[2])
+                tarif_horaire = gardien[2] if gardien else 0
+                nombre_heures = demande[10] if len(demande) > 10 and demande[10] else 1
+                prix_total = tarif_horaire * nombre_heures
+
                 insert_reservation(
                     id_demande,
                     str(date.today()),
-                    0,
+                    prix_total,
                     'CONFIRMEE'
                 )
-
     return jsonify({'status': 'updated'})
 
 
@@ -364,7 +369,7 @@ def get_confirmee_reservation(id_utilisateur):
     rows = get_confirmed_reservations_by_user_id(id_utilisateur)
 
     if not rows:
-        return jsonify({'error': 'Aucune réservation confirmée trouvée'}), 404
+        return jsonify([]), 200
 
     reservations = []
     for r in rows:
