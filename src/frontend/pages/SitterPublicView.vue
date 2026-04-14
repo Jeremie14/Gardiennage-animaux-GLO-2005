@@ -159,17 +159,17 @@
                 Aucun service ajouté pour le moment.
               </v-alert>
 
-              <div v-for="service in serviceStore.services" :key="service.idService" class="service-item d-flex align-center justify-space-between mb-3">
-                <div>
-                  <p class="font-weight-bold text-black mb-0">{{ service.typeService }}</p>
-                  <p class="text-caption text-grey mb-0">{{ service.description }} · {{ service.dureeEstimee }}h</p>
-                </div>
-                <div class="d-flex align-center ga-2">
-                  <v-btn icon size="x-small" variant="text" color="red" @click="handleRemoveService(service.idService)">
-                    <v-icon icon="mdi-delete-outline" size="18"></v-icon>
-                  </v-btn>
-                </div>
-              </div>
+             <div v-for="service in serviceStore.services" :key="service.idService" class="service-item d-flex align-center justify-space-between mb-3">
+  <div>
+    <p class="font-weight-bold text-black mb-0">{{ service.typeService }}</p>
+    <p class="text-caption text-grey mb-0">{{ service.description }} · {{ service.dureeEstimee }}h</p>
+  </div>
+  <div class="d-flex align-center ga-2">
+    <v-btn icon size="x-small" variant="text" color="red" @click="handleRemoveService(service.idService)">
+      <v-icon icon="mdi-delete-outline" size="18"></v-icon>
+    </v-btn>
+  </div>
+</div>
             </v-card>
 
             <v-card flat border class="rounded-xl pa-6 mb-5">
@@ -290,19 +290,18 @@
       </v-col>
     </v-row>
 
-    <v-dialog v-model="addServiceDialog" max-width="480">
-      <v-card class="pa-6 rounded-xl">
-        <h3 class="text-h6 font-weight-black mb-4">Ajouter un service</h3>
-        <v-text-field v-model="newService.typeService" label="Type de service" variant="outlined" density="comfortable" class="mb-2"></v-text-field>
-        <v-text-field v-model="newService.description" label="Description" variant="outlined" density="comfortable" class="mb-2"></v-text-field>
-        <v-text-field v-model="newService.dureeEstimee" label="Durée estimée (h)" type="number" variant="outlined" density="comfortable" class="mb-4"></v-text-field>
-        <div class="d-flex justify-end ga-2">
-          <v-btn variant="text" @click="addServiceDialog = false">Annuler</v-btn>
-          <v-btn color="primary" :loading="serviceStore.loading" @click="handleAddService">Ajouter</v-btn>
-        </div>
-      </v-card>
-    </v-dialog>
-
+   <v-dialog v-model="addServiceDialog" max-width="480">
+  <v-card class="pa-6 rounded-xl">
+    <h3 class="text-h6 font-weight-black mb-4">Ajouter un service</h3>
+    <v-text-field v-model="newService.typeService" label="Type de service" variant="outlined" density="comfortable" class="mb-2"></v-text-field>
+    <v-text-field v-model="newService.description" label="Description" variant="outlined" density="comfortable" class="mb-2"></v-text-field>
+    <v-text-field v-model="newService.dureeEstimee" label="Durée estimée (h)" type="number" variant="outlined" density="comfortable" class="mb-4"></v-text-field>
+    <div class="d-flex justify-end ga-2">
+      <v-btn variant="text" @click="addServiceDialog = false">Annuler</v-btn>
+      <v-btn color="primary" :loading="serviceStore.loading" @click="handleAddService">Ajouter</v-btn>
+    </div>
+  </v-card>
+</v-dialog>
   </v-container>
 </template>
 
@@ -417,6 +416,7 @@ const handleAvatarUpload = (event) => {
   const reader = new FileReader()
   reader.onload = async (e) => {
     await userStore.updateUserPic(userStore.user.id, e.target.result)
+    await sitterStore.fetchSitterById(userStore.userId)
   }
   reader.readAsDataURL(file)
 }
