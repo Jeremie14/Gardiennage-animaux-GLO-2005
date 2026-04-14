@@ -36,7 +36,6 @@
 
             <div class="mt-4 d-flex align-start justify-space-between flex-wrap ga-4">
               <div>
-                <pre>{{ sitterStore.selectedSitter }}</pre>
                 <h1 class="text-h4 font-weight-black">
                   {{ sitterStore.selectedSitter.name }} {{ sitterStore.selectedSitter.lastName }}
                 </h1>

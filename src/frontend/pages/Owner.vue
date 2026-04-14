@@ -191,8 +191,7 @@
         <v-text-field v-model="newAnimal.weight" label="Poids (kg)" type="number" variant="outlined" density="comfortable" class="mb-2"></v-text-field>
         <v-select v-model="newAnimal.sexe" label="Sexe" :items="['Mâle', 'Femelle']" variant="outlined" density="comfortable" class="mb-2"></v-select>
         <v-text-field v-model="newAnimal.temper" label="Tempérament" variant="outlined" density="comfortable" class="mb-2"></v-text-field>
-        <v-text-field v-model="newAnimal.sepcialNeeds" label="Besoins spéciaux" variant="outlined" density="comfortable" class="mb-4"></v-text-field>
-        <div class="d-flex justify-end ga-2">
+<v-text-field v-model="newAnimal.specialNeeds" label="Besoins spéciaux" variant="outlined" density="comfortable" class="mb-4"></v-text-field>        <div class="d-flex justify-end ga-2">
           <v-btn variant="text" @click="addDialog = false">Annuler</v-btn>
           <v-btn color="primary" :loading="animalStore.loading" @click="handleAddAnimal">Ajouter</v-btn>
         </div>
