@@ -983,3 +983,8 @@ DELETE FROM gardienanimaux WHERE gardienanimaux.idGardien= 105
 
 ALTER TABLE DemandeReservation
 ADD COLUMN nombreHeures INT NOT NULL DEFAULT 1;
+
+SELECT idDemande, nombreHeures
+FROM DemandeReservation
+WHERE idDemande = 83;
+

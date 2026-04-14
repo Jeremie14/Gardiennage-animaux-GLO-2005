@@ -7,7 +7,7 @@ import { useServiceStore} from "@/stores/ServiceStore.js";
 import sitterService from '@/service/sitterService.js'
 
 const step = ref(1)
-const bookingHours = ref(1)
+const bookingHours = ref('1')
 
 const cardName = ref('')
 const cardNumber = ref('')
@@ -17,9 +17,15 @@ const paymentMethod = ref('Crédit')
 
 const totalPrice = computed(() => {
   const priceHour = Number(props.sitter?.priceHour || 0)
-  const hours = Number(bookingHours.value || 0)
+  const hours = normalizedBookingHours.value
   return priceHour * hours
 })
+
+const normalizedBookingHours = computed(() => {
+  const value = Number.parseInt(bookingHours.value, 10)
+  return Number.isNaN(value) || value < 1 ? 1 : value
+})
+
 
 const props = defineProps(['modelValue', 'sitter'])
 const emit = defineEmits(['update:modelValue'])
@@ -115,7 +121,7 @@ const handleBooking = async () => {
       dateDebut.value,
       dateFin.value,
       message.value,
-      Number(bookingHours.value)
+      normalizedBookingHours.value
     )
 
     successMessage.value = 'Votre demande de reservation a ete envoyee avec succes.'
@@ -225,7 +231,7 @@ const handleBooking = async () => {
                 Taux horaire : {{ props.sitter.priceHour }} $ / h
               </div>
               <div class="text-body-2 text-grey-darken-1">
-                Nombre d'heures : {{ bookingHours }}
+                Nombre d'heures : {{ normalizedBookingHours }}
               </div>
               <div class="text-h6 font-weight-black mt-2">
                 Total : {{ totalPrice }} $
