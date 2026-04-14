@@ -6,7 +6,9 @@ export const useSitterStore = defineStore('sitter', {
     sitters: [],
     selectedSitter: null,
     loading: false,
-    error: null
+    error: null,
+    revenue: { nbReservations: 0, revenuTotal: 0 },
+    topSitters: [],
   }),
 
   getters: {
@@ -18,6 +20,19 @@ export const useSitterStore = defineStore('sitter', {
   },
 
   actions: {
+
+    async fetchTopSitters() {
+  this.loading = true
+  this.error = null
+  try {
+    this.topSitters = await sitterService.getTopSitters()
+  } catch (err) {
+    this.error = "Impossible de charger le top gardiens."
+    console.error(err)
+  } finally {
+    this.loading = false
+  }
+},
 
     async fetchAllSitters() {
       this.loading = true
@@ -44,6 +59,13 @@ export const useSitterStore = defineStore('sitter', {
       }
     },
 
+async fetchRevenue(userId) {
+  try {
+    this.revenue = await sitterService.getRevenue(userId)
+  } catch (err) {
+    console.error(err)
+  }
+},
 
    async updateSitterProfile(userId, profileUpdates) {
   this.loading = true

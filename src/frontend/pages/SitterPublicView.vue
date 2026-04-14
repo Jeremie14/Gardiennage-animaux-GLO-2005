@@ -243,7 +243,7 @@
               </div>
             </v-card>
 
-          <v-card flat border class="rounded-xl pa-6 mb-5">
+        <v-card flat border class="rounded-xl pa-6 mb-5">
   <h3 class="section-title mb-4">
     <v-icon icon="mdi-calendar-check" class="mr-2" color="white"></v-icon>
     Réservations
@@ -267,11 +267,44 @@
     <p class="text-caption text-grey mb-1">
       {{ new Date(r.dateDebut).toLocaleDateString('fr-CA') }} – {{ new Date(r.dateFin).toLocaleDateString('fr-CA') }}
     </p>
-    <v-chip color="green" variant="tonal" size="x-small">{{ r.Totalprice }} $</v-chip>
+    <v-chip color="green" variant="tonal" size="x-small" class="mb-2">{{ r.Totalprice }} $</v-chip>
+
+    <div v-if="(r.statut || 'CONFIRMEE') === 'CONFIRMEE'" class="mt-2">
+      <v-btn block color="orange" variant="tonal" size="x-small" @click="handleUpdateReservation(r.idReservation, 'EN_COURS')">
+        <v-icon icon="mdi-play-circle" start size="14"></v-icon>
+        Démarrer la garde
+      </v-btn>
+    </div>
+    <div v-else-if="r.statut === 'EN_COURS'" class="mt-2">
+      <v-btn block color="blue" variant="tonal" size="x-small" @click="handleUpdateReservation(r.idReservation, 'TERMINEE')">
+        <v-icon icon="mdi-flag-checkered" start size="14"></v-icon>
+        Terminer la garde
+      </v-btn>
+    </div>
+
     <v-divider class="mt-3" v-if="toutesLesReservations.indexOf(r) < toutesLesReservations.length - 1"></v-divider>
   </div>
 </v-card>
-
+<v-card flat border class="rounded-xl pa-6 mb-5">
+  <h3 class="section-title mb-4">
+    <v-icon icon="mdi-cash-multiple" class="mr-2" color="white"></v-icon>
+    Revenus
+  </h3>
+  <div class="d-flex align-center justify-space-between mb-3">
+    <div class="demande-item flex-grow-1 mr-2 text-center pa-3">
+      <p class="text-caption text-grey mb-1">Réservations</p>
+      <p class="text-h5 font-weight-black text-indigo-darken-1 mb-0">
+        {{ sitterStore.revenue.nbReservations }}
+      </p>
+    </div>
+    <div class="demande-item flex-grow-1 text-center pa-3">
+      <p class="text-caption text-grey mb-1">Revenus totaux</p>
+      <p class="text-h5 font-weight-black text-green-darken-2 mb-0">
+        {{ sitterStore.revenue.revenuTotal }} $
+      </p>
+    </div>
+  </div>
+</v-card>
             <v-card flat border class="rounded-xl pa-6 save-card">
               <v-btn
                 block color="primary" size="x-large"
@@ -352,6 +385,7 @@ onMounted(async () => {
     await demandeStore.fetchDemandesBySitter(userId)
     await reservationStore.fetchConfirmedReservationsByUser(userId)
     await reservationStore.fetchPastReservationsByUser(userId)
+    await sitterStore.fetchRevenue(userId)
 
     if (sitterStore.selectedSitter) {
       editForm.description = sitterStore.selectedSitter.description || ''
@@ -370,10 +404,18 @@ const handleSave = async () => {
     console.error(e)
   }
 }
-const toutesLesReservations = computed(() => [
-  ...reservationStore.confirmedReservation,
-  ...reservationStore.pastReservations,
-])
+const toutesLesReservations = computed(() => {
+  const all = [
+    ...reservationStore.confirmedReservation,
+    ...reservationStore.pastReservations,
+  ]
+  const seen = new Set()
+  return all.filter(r => {
+    if (seen.has(r.idReservation)) return false
+    seen.add(r.idReservation)
+    return true
+  })
+})
 
 const statutResColor = (statut) => {
   switch (statut) {
@@ -444,6 +486,16 @@ const resetForm = () => {
     editForm.tarifHoraire = sitterStore.selectedSitter.priceHour || 0
     editForm.tariffJournalier = sitterStore.selectedSitter.tariffJournalier || 0
     editForm.zoneService = sitterStore.selectedSitter.zoneService || ''
+  }
+}
+
+const handleUpdateReservation = async (reservationId, statut) => {
+  try {
+    await reservationStore.updateReservationStatus(reservationId, statut)
+    await reservationStore.fetchConfirmedReservationsByUser(userStore.userId)
+    await reservationStore.fetchPastReservationsByUser(userStore.userId)
+  } catch (e) {
+    console.error(e)
   }
 }
 

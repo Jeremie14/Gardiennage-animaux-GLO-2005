@@ -243,6 +243,7 @@ def get_service_by_id(id_service):
 def delete_service(id_service):
     connection, cursor = get_cursor()
     try:
+        cursor.execute('UPDATE DemandeReservation SET idService=NULL WHERE idService=%s', (id_service,))
         cursor.execute('DELETE FROM Service WHERE idService=%s', (id_service,))
     finally:
         cursor.close()
@@ -500,11 +501,51 @@ def get_avis_by_gardien(id_gardien):
 def get_moyenne_avis_gardien(id_gardien):
     connection, cursor = get_cursor()
     try:
-        cursor.execute('SELECT AVG(note) AS moyenne FROM Avis WHERE idGardien=%s', (id_gardien,))
+        cursor.execute('SELECT CalculerNoteMoyenneGardien(%s)', (id_gardien,))
         result = cursor.fetchone()
-        return result[0] if result else None
+        return result[0] if result else 0.00
     finally:
         cursor.close()
         connection.close()
 
 
+def get_revenue_gardien(id_gardien):
+    connection, cursor = get_cursor()
+    try:
+        cursor.execute(
+            'SELECT G.idGardien, U.prenom, U.nom, '
+            'COUNT(R.idReservation) AS nbReservations, '
+            'COALESCE(SUM(R.prixTotal), 0) AS revenuTotal '
+            'FROM GardienAnimaux G '
+            'JOIN Utilisateur U ON U.idUtilisateur = G.idGardien '
+            'LEFT JOIN DemandeReservation DR ON DR.idGardien = G.idGardien '
+            'LEFT JOIN Reservation R ON R.idDemande = DR.idDemande '
+            'AND R.statutReservation IN ("CONFIRMEE", "EN_COURS", "TERMINEE") '
+            'WHERE G.idGardien = %s '
+            'GROUP BY G.idGardien, U.prenom, U.nom',
+            (id_gardien,)
+        )
+        return cursor.fetchone()
+    finally:
+        cursor.close()
+        connection.close()
+
+def get_top_gardiens():
+    connection, cursor = get_cursor()
+    try:
+        cursor.execute(
+            'SELECT G.idGardien, U.prenom, U.nom, U.photoDeProfil, '
+            'ROUND(AVG(A.note), 2) AS noteMoyenne, COUNT(A.idAvis) AS nbAvis, '
+            'G.tarifHoraire, G.description '
+            'FROM GardienAnimaux G '
+            'JOIN Utilisateur U ON U.idUtilisateur = G.idGardien '
+            'JOIN Avis A ON A.idGardien = G.idGardien '
+            'GROUP BY G.idGardien, U.prenom, U.nom, U.photoDeProfil, G.tarifHoraire, G.description '
+            'HAVING COUNT(A.idAvis) >= 3 '
+            'ORDER BY noteMoyenne DESC, nbAvis DESC '
+            'LIMIT 5'
+        )
+        return cursor.fetchall()
+    finally:
+        cursor.close()
+        connection.close()
