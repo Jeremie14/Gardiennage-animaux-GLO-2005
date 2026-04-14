@@ -243,6 +243,7 @@ def get_service_by_id(id_service):
 def delete_service(id_service):
     connection, cursor = get_cursor()
     try:
+        cursor.execute('UPDATE DemandeReservation SET idService=NULL WHERE idService=%s', (id_service,))
         cursor.execute('DELETE FROM Service WHERE idService=%s', (id_service,))
     finally:
         cursor.close()
