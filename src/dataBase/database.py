@@ -148,14 +148,14 @@ def change_animal_picture(id_animal, picture):
 
 # ─── GardienAnimaux ──────────────────────────────────────────────────────────
 
-def insert_gardien(id_utilisateur, experience, tarif_horaire, description,
-                   tarif_journalier=None, zone_service=None):
+def insert_gardien(id_utilisateur, experience, tarif_horaire, description
+                   , zone_service=None):
     connection, cursor = get_cursor()
     try:
         cursor.execute(
             'INSERT INTO GardienAnimaux(idGardien, experience, tarifHoraire, description, zoneService, verificationIdentite) '
             'VALUES (%s, %s, %s, %s, %s, FALSE)',
-            (id_utilisateur, experience, tarif_horaire, description, tarif_journalier)
+            (id_utilisateur, experience, tarif_horaire, description, zone_service)
         )
     finally:
         cursor.close()

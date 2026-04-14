@@ -165,7 +165,6 @@ def create_gardien():
         data['experience'],
         data['tarifHoraire'],
         data['description'],
-        data.get('tariffJournalier'),
         data.get('zoneService')
     )
     return jsonify({'status': 'created'}), 201
