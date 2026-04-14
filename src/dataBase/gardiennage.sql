@@ -988,3 +988,16 @@ SELECT idDemande, nombreHeures
 FROM DemandeReservation
 WHERE idDemande = 83;
 
+SELECT *
+FROM Service
+WHERE idGardien = 2;
+
+SELECT idService, idGardien, typeService, description, dureeEstimee
+FROM Service
+WHERE idGardien = 2;
+
+SHOW COLUMNS FROM DemandeReservation;
+
+ALTER TABLE DemandeReservation
+ADD COLUMN nombreHeures INT NOT NULL DEFAULT 1;
+
