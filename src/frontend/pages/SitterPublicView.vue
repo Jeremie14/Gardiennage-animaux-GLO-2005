@@ -285,7 +285,26 @@
     <v-divider class="mt-3" v-if="toutesLesReservations.indexOf(r) < toutesLesReservations.length - 1"></v-divider>
   </div>
 </v-card>
-
+<v-card flat border class="rounded-xl pa-6 mb-5">
+  <h3 class="section-title mb-4">
+    <v-icon icon="mdi-cash-multiple" class="mr-2" color="white"></v-icon>
+    Revenus
+  </h3>
+  <div class="d-flex align-center justify-space-between mb-3">
+    <div class="demande-item flex-grow-1 mr-2 text-center pa-3">
+      <p class="text-caption text-grey mb-1">Réservations</p>
+      <p class="text-h5 font-weight-black text-indigo-darken-1 mb-0">
+        {{ sitterStore.revenue.nbReservations }}
+      </p>
+    </div>
+    <div class="demande-item flex-grow-1 text-center pa-3">
+      <p class="text-caption text-grey mb-1">Revenus totaux</p>
+      <p class="text-h5 font-weight-black text-green-darken-2 mb-0">
+        {{ sitterStore.revenue.revenuTotal }} $
+      </p>
+    </div>
+  </div>
+</v-card>
             <v-card flat border class="rounded-xl pa-6 save-card">
               <v-btn
                 block color="primary" size="x-large"
@@ -366,6 +385,7 @@ onMounted(async () => {
     await demandeStore.fetchDemandesBySitter(userId)
     await reservationStore.fetchConfirmedReservationsByUser(userId)
     await reservationStore.fetchPastReservationsByUser(userId)
+    await sitterStore.fetchRevenue(userId)
 
     if (sitterStore.selectedSitter) {
       editForm.description = sitterStore.selectedSitter.description || ''

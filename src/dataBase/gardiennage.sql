@@ -980,3 +980,5 @@ WHERE (D.idProprietaire = 3 OR D.idGardien = 3)
 AND R.statutReservation = "CONFIRMEE";
 
 DELETE FROM gardienanimaux WHERE gardienanimaux.idGardien= 105
+
+ALTER TABLE Utilisateur MODIFY COLUMN motDePasse VARCHAR(255);

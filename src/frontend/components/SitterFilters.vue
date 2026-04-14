@@ -2,53 +2,13 @@
   <v-card border flat color="grey-lighten-2" class="pa-4 rounded-xl">
     <div class="text-subtitle-1 font-weight-bold mb-4">Filtres</div>
 
-    <v-label class="mb-2">Services</v-label>
-    <v-checkbox
-      v-model="selectedServices"
-      label="Promenade"
-      value="Promenade"
-      density="compact"
-      hide-details
-      color="primary"
-    ></v-checkbox>
-    <v-checkbox
-      v-model="selectedServices"
-      label="Garde a domicile"
-      value="Garde a domicile"
-      density="compact"
-      hide-details
-      color="primary"
-    ></v-checkbox>
-    <v-checkbox
-      v-model="selectedServices"
-      label="Visites ponctuelles"
-      value="Visites ponctuelles"
-      density="compact"
-      hide-details
-      color="primary"
-    ></v-checkbox>
-
-    <v-divider class="my-4"></v-divider>
-
-    <v-label class="mb-2">Zone de service</v-label>
-    <v-select
-      v-model="selectedZone"
-      :items="['Quebec']"
-      label="Choisir une zone"
-      variant="outlined"
-      density="comfortable"
-      clearable
-      hide-details
-      class="mb-4"
-    ></v-select>
-
     <v-label>Prix maximal</v-label>
     <v-slider
       v-model="maxPrice"
       color="primary"
       thumb-label
       min="10"
-      max="150"
+      max="50"
       step="5"
     ></v-slider>
 
@@ -62,14 +22,12 @@
 import { ref } from 'vue'
 
 const emit = defineEmits(['apply-filters'])
-const selectedServices = ref([])
-const selectedZone = ref(null)
-const maxPrice = ref(150)
+const maxPrice = ref(50)
 
 const applyFilters = () => {
   emit('apply-filters', {
-    selectedServices: selectedServices.value,
-    selectedZone: selectedZone.value,
+    selectedServices: [],
+    selectedZone: null,
     maxPrice: maxPrice.value
   })
 }

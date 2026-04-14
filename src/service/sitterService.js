@@ -48,7 +48,15 @@ async getSitterById(userId) {
     return response.data.data
   },
 
+async getRevenue(sitterId) {
+  const response = await axios.get(`${API_URL}/${sitterId}/revenue`)
+  return response.data
+},
 
+  async getTopSitters() {
+  const response = await axios.get(`${API_URL}/top`)
+  return response.data
+},
 
   async updateSitter(userId, updates) {
     const response = await axios.put(`${API_URL}/${userId}`, updates)

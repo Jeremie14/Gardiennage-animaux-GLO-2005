@@ -26,18 +26,15 @@ SELECT
     U.prenom,
     U.nom,
     G.zoneService,
-    S.typeService,
+    S.typeService
 FROM GardienAnimaux G
 JOIN Utilisateur U
     ON U.idUtilisateur = G.idGardien
 JOIN Service S
     ON S.idGardien = G.idGardien
-JOIN Disponibilite D
-    ON D.idGardien = G.idGardien
+
   WHERE S.typeService = 'GARDE_JOUR'
-  AND D.statutDisponibilite = 'DISPONIBLE'
-  AND D.dateDebut <= '2026-05-10'
-  AND D.dateFin >= '2026-05-12'
+
   AND G.idGardien NOT IN (
         SELECT DR.idGardien
         FROM DemandeReservation DR
@@ -148,7 +145,7 @@ SELECT
     COUNT(A.idAvis) AS nbAvis
 FROM GardienAnimaux G
 JOIN Utilisateur U
-    ON U.idUtilisateur = G.idUtilisateur
+    ON U.idUtilisateur = G.idGardien
 JOIN Avis A
     ON A.idGardien = G.idGardien
 GROUP BY G.idGardien, U.prenom, U.nom
@@ -271,14 +268,12 @@ BEGIN
         DR.idGardien,
         DR.dateDebut,
         DR.dateFin,
-        DR.statutDemande,
-        S.tarif
+        DR.statutDemande
     INTO
         v_idGardien,
         v_dateDebut,
         v_dateFin,
-        v_statutDemande,
-        v_tarif
+        v_statutDemande
     FROM DemandeReservation DR
     JOIN Service S
         ON S.idService = DR.idService

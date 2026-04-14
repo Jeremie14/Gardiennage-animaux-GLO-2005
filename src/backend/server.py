@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from src.dataBase.database import *
+from passwordHash import *
 from datetime import date
 
 app = Flask(__name__)
@@ -16,13 +17,14 @@ def index():
 @app.route('/user/register', methods=['POST'])
 def user_register():
     data = request.get_json()
+    hashed_password = password_hash(data['password'])
     insert_utilisateur(
         data['lastName'],
         data['name'],
         data['email'],
         data['cellPhone'],
         data['adress'],
-        data['password'],
+        hashed_password,
         data.get('role', 'Proprietaire')
     )
     if data.get('role') == 'Gardien':
@@ -35,7 +37,6 @@ def user_register():
                 data.get('description', ''),
                 data.get('zoneService', None)
             )
-
     return jsonify({'status': 'created'}), 201
 
 
@@ -45,11 +46,14 @@ def user_login():
     user = get_utilisateur_by_email(data['email'])
     if user is None:
         return jsonify({'error': 'Utilisateur introuvable'}), 404
-    if user[7] != data['password']:
+    try:
+        if not verify_password(data['password'], user[7]):
+            return jsonify({'error': 'Mot de passe incorrect'}), 401
+    except Exception:
         return jsonify({'error': 'Mot de passe incorrect'}), 401
     return jsonify({
         'status': 'ok',
-         'id': user[0],
+        'id': user[0],
         'name': user[1],
         'lastName': user[2],
         'email': user[3],
@@ -184,7 +188,22 @@ def list_gardiens():
         })
     return jsonify(result)
 
-
+@app.route('/gardien/top', methods=['GET'])
+def get_top_gardiens_route():
+    gardiens = get_top_gardiens()
+    result = []
+    for g in gardiens:
+        result.append({
+            'id': g[0],
+            'name': g[1],
+            'lastName': g[2],
+            'photo': g[3],
+            'noteMoyenne': float(g[4]),
+            'nbAvis': g[5],
+            'priceHour': g[6],
+            'description': g[7],
+        })
+    return jsonify(result)
 @app.route('/gardien/<int:id_utilisateur>', methods=['GET'])
 def get_gardien(id_utilisateur):
     g = get_gardien_by_id(id_utilisateur)
@@ -476,6 +495,19 @@ def get_avis(id_gardien):
 def get_moyenne(id_gardien):
     moyenne = get_moyenne_avis_gardien(id_gardien)
     return jsonify({'idGardien': id_gardien, 'moyenneNote': round(float(moyenne), 2) if moyenne else None})
+
+
+@app.route('/gardien/<int:id_gardien>/revenue', methods=['GET'])
+def get_gardien_revenue(id_gardien):
+    r = get_revenue_gardien(id_gardien)
+    if r is None:
+        return jsonify({'nbReservations': 0, 'revenuTotal': 0}), 200
+    return jsonify({
+        'idGardien': r[0],
+        'nbReservations': r[3],
+        'revenuTotal': float(r[4])
+    }), 200
+
 
 
 if __name__ == '__main__':
