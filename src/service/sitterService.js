@@ -14,9 +14,11 @@ export default {
       priceHour: sitter.priceHour,
       description: sitter.description,
       photo: sitter.photo,
-      rating: 5.0,
+      rating: sitter.moyenneNote,
       zoneService: sitter.zoneService,
       experience: sitter.experience,
+      email: sitter.email,
+      adress: sitter.adress,
       services: ['Promenade', 'Garde a domicile', 'Visites ponctuelles']
     }))
     },
@@ -35,6 +37,8 @@ async getSitterById(userId) {
     rating: 5.0,
     zoneService: sitter.zoneService,
     experience: sitter.experience,
+     email: sitter.email,
+    adress: sitter.adress,
     services: ['Promenade', 'Garde a domicile', 'Visites ponctuelles']
   }
 },

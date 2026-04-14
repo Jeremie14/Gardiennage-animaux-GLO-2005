@@ -36,6 +36,7 @@
 
             <div class="mt-4 d-flex align-start justify-space-between flex-wrap ga-4">
               <div>
+                <pre>{{ sitterStore.selectedSitter }}</pre>
                 <h1 class="text-h4 font-weight-black">
                   {{ sitterStore.selectedSitter.name }} {{ sitterStore.selectedSitter.lastName }}
                 </h1>
@@ -151,7 +152,7 @@
                 </v-avatar>
                 <div>
                   <p class="text-caption text-grey mb-0">Email</p>
-                  <p class="text-body-2 font-weight-bold mb-0">{{ sitterStore.selectedSitter.email }}</p>
+                  <p class="text-body-2 font-weight-bold text-grey mb-0">{{ sitterStore.selectedSitter.email }}</p>
                 </div>
               </div>
               <div class="d-flex align-center" v-if="sitterStore.selectedSitter.adress">
