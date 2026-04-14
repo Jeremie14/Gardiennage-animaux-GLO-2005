@@ -52,12 +52,21 @@ onMounted(async () => {
 })
 
 const loadServices = async (sitterId) => {
+  serviceStore.services = []
   await serviceStore.fetchServicesBySitter(sitterId)
 }
 
-watch(() => props.sitter, (sitter) => {
-  if (sitter?.id) loadServices(sitter.id)
-}, { immediate: true })
+
+watch(
+  () => [props.modelValue, props.sitter?.id],
+  async ([isOpen, sitterId]) => {
+    if (isOpen && sitterId) {
+      await loadServices(sitterId)
+    }
+  },
+  { immediate: true }
+)
+
 
 const clearMessages = () => {
   formError.value = ''
