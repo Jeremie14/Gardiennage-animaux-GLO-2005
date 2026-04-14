@@ -384,10 +384,18 @@ const handleSave = async () => {
     console.error(e)
   }
 }
-const toutesLesReservations = computed(() => [
-  ...reservationStore.confirmedReservation,
-  ...reservationStore.pastReservations,
-])
+const toutesLesReservations = computed(() => {
+  const all = [
+    ...reservationStore.confirmedReservation,
+    ...reservationStore.pastReservations,
+  ]
+  const seen = new Set()
+  return all.filter(r => {
+    if (seen.has(r.idReservation)) return false
+    seen.add(r.idReservation)
+    return true
+  })
+})
 
 const statutResColor = (statut) => {
   switch (statut) {

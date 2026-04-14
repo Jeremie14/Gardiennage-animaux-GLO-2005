@@ -69,18 +69,32 @@ export const useReservationStore = defineStore('reservation', {
       }
     },
 
-    async updateReservationStatus(reservationId, statut) {
-      this.loading = true
-      this.error = null
-      try {
-        await reservationService.updateReservationStatus(reservationId, statut)
-        const r = this.reservations.find((r) => r.idReservation === reservationId)
-        if (r) r.statutReservation = statut
-      } catch (e) {
-        this.error = 'Erreur lors de la mise à jour du statut'
-      } finally {
-        this.loading = false
+   async updateReservationStatus(reservationId, statut) {
+  this.loading = true
+  this.error = null
+  try {
+    await reservationService.updateReservationStatus(reservationId, statut)
+
+    const inConfirmed = this.confirmedReservation.find(r => r.idReservation === reservationId)
+    const inPast = this.pastReservations.find(r => r.idReservation === reservationId)
+
+    if (inConfirmed) {
+      inConfirmed.statut = statut
+      if (statut !== 'CONFIRMEE') {
+        this.confirmedReservation = this.confirmedReservation.filter(r => r.idReservation !== reservationId)
+        this.pastReservations.push({ ...inConfirmed, statut })
       }
-    },
+    }
+
+    if (inPast) {
+      inPast.statut = statut
+    }
+
+  } catch (e) {
+    this.error = 'Erreur lors de la mise à jour du statut'
+  } finally {
+    this.loading = false
+  }
+},
   },
 })
