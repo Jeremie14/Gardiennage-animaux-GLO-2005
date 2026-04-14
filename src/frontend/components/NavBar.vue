@@ -7,9 +7,9 @@ const userStore = useUserStore()
 const router = useRouter()
 
 
-const handleLogout = () => {
+const handleLogout = async () => {
   userStore.logout()
-  router.push('/login')
+  await router.push('/login')
 }
 </script>
 

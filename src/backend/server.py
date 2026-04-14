@@ -382,7 +382,16 @@ def get_reservation(id_reservation):
 @app.route('/reservation/<int:id_reservation>/statut', methods=['PUT'])
 def update_reservation_statut(id_reservation):
     data = request.get_json()
-    update_statut_reservation(id_reservation, data['statut'])
+    statut = data['statut']
+
+    if statut == 'ANNULEE':
+        try:
+            annuler_reservation(id_reservation)
+            return jsonify({'status': 'annulée'}), 200
+        except Exception as e:
+            return jsonify({'error': str(e)}), 400
+
+    update_statut_reservation(id_reservation, statut)
     return jsonify({'status': 'updated'})
 
 @app.route('/reservation/<int:id_utilisateur>/confirmee', methods=['GET'])

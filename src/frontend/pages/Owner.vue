@@ -124,7 +124,19 @@
             <v-btn variant="tonal" color="primary" size="small" class="rounded-lg" @click="openDetailDialog(reservation)">
               Voir les détails
             </v-btn>
+                      <v-btn
+  variant="tonal"
+  color="red"
+  size="small"
+  class="rounded-lg"
+  @click="handleCancelReservation(reservation.idReservation)"
+>
+  <v-icon icon="mdi-close-circle" start size="14"></v-icon>
+  Annuler
+</v-btn>
+
           </div>
+
         </v-card>
       </section>
 
@@ -217,6 +229,7 @@
           <v-chip color="white" variant="tonal" size="large" class="font-weight-bold text-indigo-darken-2">
             {{ selectedReservation.Totalprice }} $
           </v-chip>
+
         </div>
 
         <v-card-text class="pa-6" style="max-height: 70vh; overflow-y: auto;">
@@ -514,6 +527,13 @@ const handleSubmitAvis = async () => {
       selectedReservationAvis.value.idReservation,
     )
     avisDialog.value = false
+  } catch (e) {
+    console.error(e)
+  }
+}
+const handleCancelReservation = async (reservationId) => {
+  try {
+    await reservationStore.cancelReservation(reservationId)
   } catch (e) {
     console.error(e)
   }

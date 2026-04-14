@@ -24,7 +24,10 @@ export default {
   const response = await axios.get(`${API_URL}/${idUtilisateur}/passees`)
   return response.data
 },
-
+async cancelReservation(reservationId) {
+  const response = await axios.put(`${API_URL}/${reservationId}/statut`, { statut: 'ANNULEE' })
+  return response.data
+},
   async updateReservationStatus(reservationId, statut) {
     const response = await axios.put(`${API_URL}/${reservationId}/statut`, { statut })
     return response.data

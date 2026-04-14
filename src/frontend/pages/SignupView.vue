@@ -253,7 +253,7 @@ const finishSignUp = async () => {
     if (selectedRole.value === 'sitter') {
       await router.push('/sitter/profile')
     } else {
-      await router.push('/owner/dashboard')
+      await router.push(`/owner/dashboard/${userStore.userId}`)
     }
 
   } catch (err) {

@@ -109,7 +109,7 @@ const handleLogin = async () => {
 
     if (success) {
       if (userStore.userRole === 'Gardien') {
-        await router.push('/sitter/bookings')
+        await router.push('/sitter/profile')
       } else {
         router.push('/')
       }

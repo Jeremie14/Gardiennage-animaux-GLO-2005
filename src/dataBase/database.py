@@ -549,3 +549,16 @@ def get_top_gardiens():
     finally:
         cursor.close()
         connection.close()
+
+def annuler_reservation(id_reservation):
+    connection, cursor = get_cursor()
+    try:
+        cursor.callproc('AnnulerReservation', (id_reservation,))
+        connection.commit()
+    except Exception as e:
+        connection.rollback()
+        print(f"Erreur annulation: {e}")
+        raise e
+    finally:
+        cursor.close()
+        connection.close()

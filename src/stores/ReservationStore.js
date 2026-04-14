@@ -68,7 +68,23 @@ export const useReservationStore = defineStore('reservation', {
         this.loading = false
       }
     },
-
+async cancelReservation(reservationId) {
+  this.loading = true
+  this.error = null
+  try {
+    await reservationService.cancelReservation(reservationId)
+    const r = this.confirmedReservation.find(r => r.idReservation === reservationId)
+    if (r) {
+      this.confirmedReservation = this.confirmedReservation.filter(r => r.idReservation !== reservationId)
+      this.pastReservations.push({ ...r, statut: 'ANNULEE' })
+    }
+  } catch (e) {
+    this.error = "Erreur lors de l'annulation"
+    throw e
+  } finally {
+    this.loading = false
+  }
+},
    async updateReservationStatus(reservationId, statut) {
   this.loading = true
   this.error = null

@@ -15,6 +15,14 @@ export default {
     return response.data
   },
 
+  async cancelReservation(reservationId) {
+  const response = await axios.put(
+    `http://127.0.0.1:5000/reservation/${reservationId}/statut`,
+    { statut: 'ANNULEE' }
+  )
+  return response.data
+},
+
   async updatePaymentStatus(paymentId, statut) {
     const response = await axios.put(`${API_URL}/${paymentId}/statut`, { statut })
     return response.data
